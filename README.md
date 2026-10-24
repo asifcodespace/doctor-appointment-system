@@ -61,8 +61,6 @@ go mod download
 go run main.go
 ```
 
-> Run the backend command from the directory containing the appropriate Go entry point. Adjust the command if your `main.go` is inside a subdirectory such as `cmd/server`.
-
 ## Environment Variables
 
 Configure environment variables separately for the frontend and backend as required.
