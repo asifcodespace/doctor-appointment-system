@@ -13,7 +13,8 @@ A scalable full-stack doctor appointment platform built with SvelteKit and Go, d
 **Backend**
 - Go (Golang)
 - REST API
-- PostgreSQL 
+- PostgreSQL
+- Database migration
 
 ## Features
 
