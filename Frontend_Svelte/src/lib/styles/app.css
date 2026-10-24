@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #163331;
+  --color-secondary: #4A7B6F;
+  --color-accent: #C4973A;
+  --color-mist: #A8C5BE;
+  --color-cream: #F5F0E8;
+  --color-white: #FDFBF7;
+  --color-charcoal: #2C2C2C;
+  --color-mid: #6B6B6B;
+  --color-light: #E8E4DC;
+  --color-dark-bg: #0d1f1e;
+  --color-dark-surf: #1a3d3a;
+  --color-dark-card: #2d5e52;
+
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-charcoal font-body text-[15px] leading-[1.6] transition-colors duration-300 scroll-pt-[80px];
+  }
+
+  /* Dark mode */
+  .dark {
+    --color-primary: #a8c5be; /* Light version for text */
+    --color-secondary: #7aa59c; /* Brighter for text contrast */
+    --color-charcoal: #f0f4f3; /* Light principal text */
+    --color-mid: #a8c5be; /* Muted light text */
+    --color-light: #1e3d3a; /* Darker borders */
+    
+    /* Keep these light so text-white/text-cream still works as light text */
+    --color-white: #fdfbf7; 
+    --color-cream: #f5f0e8;
+    --color-mist: #d1e2df;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-light;
+  }
+
+  /* Force BACKGROUNDS to be dark in dark mode for sections */
+  .dark body,
+  .dark header, 
+  .dark footer, 
+  .dark section,
+  .dark .bg-white,
+  .dark .bg-cream,
+  .dark .bg-primary:not(div), /* Affect sections but not small divs */
+  .dark .bg-secondary:not(div),
+  .dark .about-img {
+    background-color: #0d1f1e !important;
+    color: #f0f4f3;
+  }
+
+  /* Specific style for small primary/secondary boxes in dark mode (Icons, badges) */
+  .dark div.bg-primary, 
+  .dark div.bg-secondary,
+  .dark span.bg-primary\/8 {
+    background-color: #1a3d3a !important;
+    border: 1px solid rgba(168, 197, 190, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  /* Hover effect for these icons/badges in dark mode */
+  .dark .group:hover div.bg-primary, 
+  .dark .group:hover div.bg-secondary {
+    background-color: #a8c5be !important;
+    color: #0d1f1e !important;
+    border-color: #a8c5be !important;
+  }
+
+  /* Distinct color for secondary background in dark mode (Experience/Stats section) */
+  .dark section.bg-secondary {
+    background-color: #1a3d3a !important;
+    color: #f0f4f3;
+  }
+
+  /* Ensure containers like cards have a slightly lighter surface */
+  .dark .bg-white.rounded-lg,
+  .dark .bg-white.rounded-\[12px\],
+  .dark .bg-primary\/2 {
+    background-color: #142a29 !important;
+  }
+
+  /* Specific fix for inputs and selects */
+  .dark input, .dark textarea, .dark select {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: #1e3d3a !important;
+    color: #f0f4f3 !important;
+  }
+
+  /* Specific fix for buttons in dark mode */
+  .dark .btn-primary {
+    background-color: #a8c5be !important;
+    color: #0d1f1e !important;
+  }
+  .dark .btn-primary:hover {
+    filter: brightness(0.9) !important;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-3 rounded-md font-body text-sm font-medium cursor-pointer transition-all duration-200 border-none no-underline;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-cream;
+  }
+  .btn-primary:hover {
+    @apply -translate-y-0.5 shadow-lg brightness-90;
+    box-shadow: 0 6px 20px rgba(26, 61, 58, 0.3);
+  }
+
+  .btn-gold {
+    @apply bg-accent text-white;
+  }
+  .btn-gold:hover {
+    @apply -translate-y-0.5 shadow-lg brightness-110;
+    box-shadow: 0 6px 20px rgba(196, 151, 58, 0.35);
+  }
+
+  .btn-outline {
+    @apply bg-transparent text-cream border-[1.5px] border-mist/40;
+  }
+  .btn-outline:hover {
+    @apply border-mist bg-mist/10;
+  }
+
+  /* Section utility */
+  .section-padding {
+    @apply py-24 px-12 md:py-16 md:px-8 sm:py-12 sm:px-5;
+  }
+
+  .sec-label {
+    @apply text-xs tracking-[0.18em] uppercase text-secondary font-medium mb-2;
+  }
+
+  .sec-title {
+    @apply font-display text-[38px] md:text-3xl font-light text-primary mb-12 leading-[1.15];
+  }
+}
+
+/* Animations */
+@keyframes ringPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.6; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.6s ease-out forwards;
+}

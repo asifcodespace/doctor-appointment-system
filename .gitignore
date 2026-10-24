@@ -1,0 +1,73 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Dependencies
+node_modules/
+
+# SvelteKit / Vite
+.svelte-kit/
+build/
+dist/
+.vite/
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Compiled binaries and temporary builds
+bin/
+tmp/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Test coverage
+coverage/
+
+# IDEs and editors
+.vscode/
+.idea/
+.cursor/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local databases and backups
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.backup
+
+# Certificates and private keys
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+
+# Local environment overrides
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
