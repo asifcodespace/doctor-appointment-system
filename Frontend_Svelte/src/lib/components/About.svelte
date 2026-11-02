@@ -1,11 +1,7 @@
 <script lang="ts">
   import { config } from "$lib/config";
 
-  // Split qualifications by dash or space if needed to create badges
-  const badges = config.doctor.qualifications
-    .split(/[-]+/)
-    .map((b) => b.trim())
-    .filter(Boolean);
+  const badges = config.doctor.qualifications;
 </script>
 
 <section id="about" class="bg-white px-8 md:px-12 py-[88px] sm:py-16 overflow-hidden">
@@ -23,7 +19,7 @@
         <div
           class="absolute inset-0 flex items-center justify-center font-display text-[110px] text-mist italic font-light opacity-10 select-none pointer-events-none"
         >
-          M.D.
+          {config.doctor.watermarkText || "M.D."}
         </div>
         <!-- Decorative Ring -->
         <div
@@ -53,23 +49,17 @@
               {badge}
             </span>
           {/each}
-          {#if !badges.includes("MD")}
-            <span
-              class="bg-primary/8 text-primary px-4 py-1.5 rounded-full text-[12px] font-medium tracking-wide"
-            >
-              MD
-            </span>
-          {/if}
         </div>
 
         <div class="space-y-5 mb-8">
           <p class="text-[15px] text-mid leading-[1.8] opacity-90">
             {config.doctor.bio}
           </p>
-          <p class="text-[15px] text-mid leading-[1.8] opacity-90">
-            His practice welcomes patients of all ages, offering both in-person
-            and online consultations tailored to your schedule.
-          </p>
+          {#if config.doctor.additionalBio}
+            <p class="text-[15px] text-mid leading-[1.8] opacity-90">
+              {config.doctor.additionalBio}
+            </p>
+          {/if}
         </div>
 
         <div class="pt-2">

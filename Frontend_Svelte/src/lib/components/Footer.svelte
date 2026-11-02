@@ -41,10 +41,9 @@
            <div>
                <h3 class="text-sm font-bold uppercase tracking-wider mb-6 text-cream border-b border-white/10 pb-2 inline-block">Quick Links</h3>
                <ul class="space-y-3">
-                   <li><a href="/" class="text-mist/60 hover:text-white transition-colors text-sm">Home</a></li>
-                   <li><a href="#about" class="text-mist/60 hover:text-white transition-colors text-sm">About Doctor</a></li>
-                   <li><a href="#services" class="text-mist/60 hover:text-white transition-colors text-sm">Services</a></li>
-                   <li><a href="#contact" class="text-mist/60 hover:text-white transition-colors text-sm">Book Appointment</a></li>
+                   {#each config.sections.footer.quickLinks as link}
+                       <li><a href={link.href} class="text-mist/60 hover:text-white transition-colors text-sm">{link.label}</a></li>
+                   {/each}
                </ul>
            </div>
 
@@ -79,7 +78,7 @@
                    {/each}
                </ul>
                 <div class="mt-6">
-                    <a href="tel:{config.contact.phone}" class="btn btn-gold py-2 px-4 w-full text-center block text-sm">Call Now</a>
+                    <a href="tel:{config.contact.phone}" class="btn btn-gold py-2 px-4 w-full text-center block text-sm">{config.sections.footer.callCtaText || "Call Now"}</a>
                 </div>
            </div>
        </div>
@@ -88,8 +87,9 @@
        <div class="border-t border-white/5 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center text-xs text-mist/40">
            <p>{config.sections.footer.copyrightText}</p>
            <div class="mt-4 md:mt-0 space-x-4">
-               <a href="/" class="hover:text-white transition-colors">Privacy Policy</a>
-               <a href="/" class="hover:text-white transition-colors">Terms of Service</a>
+               {#each config.sections.footer.legalLinks as link}
+                   <a href={link.href} class="hover:text-white transition-colors">{link.label}</a>
+               {/each}
            </div>
        </div>
    </div>

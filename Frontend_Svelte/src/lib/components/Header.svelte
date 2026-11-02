@@ -78,7 +78,7 @@
     href="#contact"
     class="flex md:hidden bg-accent text-white text-[9px] sm:text-[10px] tracking-widest font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-md active:scale-95 transition-transform shrink-0"
   >
-    {config.sections.header.logoText.split(' ')[1] || config.sections.header.logoText}
+    {config.sections.header.mobileCtaText || config.sections.header.logoText.split(' ')[1] || config.sections.header.logoText}
   </a>
 
   <!-- Mobile Toggle -->

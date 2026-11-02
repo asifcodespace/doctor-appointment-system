@@ -3,7 +3,7 @@
 
   let name = $state("");
   let phone = $state("");
-  let reason = $state("General Check-up");
+  let reason = $state(config.contact.appointmentReasons?.[0] ?? "General Check-up");
   let message = $state("");
   let submitting = $state(false);
   let errorMessage = $state("");
@@ -126,7 +126,13 @@
             <div>
               <h4 class="text-sm font-medium text-charcoal mb-0.5">Hours</h4>
               <p class="text-[15px] text-mid font-light leading-relaxed">
-                Sat–Thu: 9AM – 6PM
+                {#if config.contact.displayHours}
+                  {config.contact.displayHours}
+                {:else if config.contact.workingHours?.length}
+                  {config.contact.workingHours[0].day}: {config.contact.workingHours[0].time}
+                {:else}
+                  Sat–Thu: 05:00 PM – 08:00 PM
+                {/if}
               </p>
             </div>
           </div>
@@ -182,10 +188,9 @@
                 bind:value={reason}
                 class="w-full bg-white border border-light rounded-[8px] px-5 py-3.5 text-sm outline-none focus:border-secondary transition-all appearance-none cursor-pointer"
               >
-                <option>General Check-up</option>
-                <option>Follow-up</option>
-                <option>Emergency</option>
-                <option>Other</option>
+                {#each config.contact.appointmentReasons as opt}
+                  <option value={opt}>{opt}</option>
+                {/each}
               </select>
               <div
                 class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-50"
@@ -268,17 +273,17 @@
         id="appointment-success-title"
         class="font-display text-[32px] text-primary font-light leading-tight mb-3"
       >
-        Appointment booked
+        {config.sections.contact.successModal?.title ?? "Appointment booked"}
       </h3>
       <p class="text-[15px] text-mid font-light leading-relaxed mb-8">
-        Your request was received successfully. We will contact you soon to confirm the time.
+        {config.sections.contact.successModal?.message ?? "Your request was received successfully. We will contact you soon to confirm the time."}
       </p>
       <button
         type="button"
         class="btn btn-gold w-full py-3.5 text-sm font-bold tracking-widest uppercase"
         onclick={closeSuccessModal}
       >
-        Close
+        {config.sections.contact.successModal?.buttonText ?? "Close"}
       </button>
     </div>
   </div>
