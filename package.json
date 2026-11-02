@@ -1,0 +1,13 @@
+{
+  "name": "doctor-brand-project",
+  "private": true,
+  "description": "Doctor Brand Website - Frontend and Backend",
+  "scripts": {
+    "postinstall": "cd Frontend_Svelte && npm install",
+    "dev": "npm --prefix Frontend_Svelte run dev",
+    "build": "npm --prefix Frontend_Svelte run build",
+    "preview": "npm --prefix Frontend_Svelte run preview",
+    "check": "npm --prefix Frontend_Svelte run check"
+  }
+}
+
