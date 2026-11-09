@@ -53,7 +53,7 @@
   }
 </script>
 
-<section id="contact" class="px-12 py-24 bg-white sm:px-5 sm:py-16">
+<section id="contact" class="px-5 py-16 md:px-12 md:py-24 bg-white">
   <div class="max-w-7xl mx-auto">
     <div
       class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start"
@@ -141,7 +141,7 @@
 
       <!-- Right Column: Form Column -->
       <div
-        class="bg-primary/2 rounded-3xl p-12 sm:p-8 border border-primary/5"
+        class="bg-primary/2 rounded-3xl p-6 sm:p-8 md:p-12 border border-primary/5"
       >
         <form class="flex flex-col gap-8" onsubmit={handleSubmit}>
           <div>
@@ -186,7 +186,7 @@
               <select
                 id="reason"
                 bind:value={reason}
-                class="w-full bg-white border border-light rounded-lg px-5 py-3.5 text-sm outline-none focus:border-secondary transition-all appearance-none cursor-pointer"
+                class="w-full bg-white border border-light rounded-lg pl-5 pr-10 py-3.5 text-sm outline-none focus:border-secondary transition-all appearance-none cursor-pointer"
               >
                 {#each config.contact.appointmentReasons as opt}
                   <option value={opt}>{opt}</option>
@@ -246,7 +246,7 @@
 
 {#if showSuccessModal}
   <div
-    class="fixed inset-0 z-[100] flex items-center justify-center bg-primary/60 px-5"
+    class="fixed inset-0 z-100 flex items-center justify-center bg-primary/60 px-5"
     role="dialog"
     aria-modal="true"
     aria-labelledby="appointment-success-title"

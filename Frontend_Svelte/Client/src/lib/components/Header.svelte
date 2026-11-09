@@ -28,17 +28,20 @@
       isScrolled = window.scrollY > 20;
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.body.style.overflow = "";
+    };
   });
 </script>
 
 <header
-  class="fixed top-0 left-0 right-0 z-50 h-18 md:h-20 flex items-center px-3 sm:px-4 md:px-12 lg:px-16 gap-1.5 sm:gap-2 md:gap-8 transition-all duration-500 {isScrolled ? 'bg-primary/90 backdrop-blur-md shadow-lg border-b border-white/5' : 'bg-transparent'}"
+  class="fixed top-0 left-0 right-0 z-50 h-18 md:h-20 flex items-center px-3 sm:px-4 md:px-12 lg:px-16 gap-1.5 sm:gap-2 md:gap-8 transition-all duration-500 {isMenuOpen ? 'bg-primary border-b border-white/5' : isScrolled ? 'bg-primary/90 backdrop-blur-md shadow-lg border-b border-white/5' : 'bg-transparent'}"
 >
   <!-- Logo -->
   <a
     href="/"
-    class="flex items-center gap-2.5 font-display text-lg sm:text-2xl text-cream tracking-wider mr-auto truncate opacity-90 max-w-[140px] xs:max-w-none transition-transform hover:scale-[1.02]"
+    class="flex items-center gap-2.5 font-display text-lg sm:text-2xl text-cream tracking-wider mr-auto truncate opacity-90 max-w-35 xs:max-w-none transition-transform hover:scale-[1.02]"
   >
     <img src={config.branding.logos.symbol} alt="" class="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
     <span>{config.sections.header.logoText}</span>
@@ -83,44 +86,45 @@
 
   <!-- Mobile Toggle -->
   <button
-    class="flex md:hidden flex-col gap-1 sm:gap-[5px] p-2 sm:p-3 -mr-1 sm:-mr-2 bg-none border-none cursor-pointer shrink-0"
+    class="flex md:hidden flex-col gap-1 sm:gap-1.25 p-2 sm:p-3 -mr-1 sm:-mr-2 bg-none border-none cursor-pointer shrink-0"
     onclick={toggleMenu}
     aria-label="Toggle menu"
   >
     <span
-      class="block w-[18px] sm:w-[22px] h-0.5 bg-mist rounded-xs transition-all duration-200"
+      class="block w-4.5 sm:w-5.5 h-0.5 bg-mist rounded-xs transition-all duration-200"
       style={isMenuOpen ? "transform: rotate(45deg) translate(5px,5px)" : ""}
     ></span>
     <span
-      class="block w-[18px] sm:w-[22px] h-0.5 bg-mist rounded-xs transition-all duration-200"
+      class="block w-4.5 sm:w-5.5 h-0.5 bg-mist rounded-xs transition-all duration-200"
       style={isMenuOpen ? "opacity: 0" : ""}
     ></span>
     <span
-      class="block w-[18px] sm:w-[22px] h-0.5 bg-mist rounded-xs transition-all duration-200"
+      class="block w-4.5 sm:w-5.5 h-0.5 bg-mist rounded-xs transition-all duration-200"
       style={isMenuOpen ? "transform: rotate(-45deg) translate(5px,-5px)" : ""}
     ></span>
   </button>
-
-  <!-- Mobile Menu -->
-  {#if isMenuOpen}
-    <div
-      class="fixed inset-0 top-18 md:top-20 z-50 bg-primary flex flex-col px-12 sm:px-6 py-8 border-t border-white/5 animate-slide-down shadow-xl overflow-y-auto"
-    >
-      {#each config.sections.header.navLinks as item}
-        <a
-          href={item.href}
-          class="text-mist no-underline text-base py-4 border-b border-white/5 tracking-widest"
-          onclick={toggleMenu}>{item.label}</a
-        >
-      {/each}
-      <a
-        href="#contact"
-        class="text-accent no-underline text-base py-6 font-bold tracking-widest"
-        onclick={toggleMenu}>{config.sections.header.ctaText} →</a
-      >
-    </div>
-  {/if}
 </header>
+
+<!-- Mobile Menu -->
+{#if isMenuOpen}
+  <nav
+    aria-label="Mobile Navigation"
+    class="fixed inset-0 top-18 md:top-20 z-40 bg-primary flex flex-col px-12 sm:px-6 py-8 border-t border-white/5 animate-slide-down shadow-xl overflow-y-auto md:hidden"
+  >
+    {#each config.sections.header.navLinks as item}
+      <a
+        href={item.href}
+        class="text-mist no-underline text-base py-4 border-b border-white/5 tracking-widest"
+        onclick={toggleMenu}>{item.label}</a
+      >
+    {/each}
+    <a
+      href="#contact"
+      class="text-accent no-underline text-base py-6 font-bold tracking-widest"
+      onclick={toggleMenu}>{config.sections.header.ctaText} →</a
+    >
+  </nav>
+{/if}
 
 <style>
   @keyframes slideDown {
