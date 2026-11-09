@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { config } from "$lib/config";
+  import { config } from "#lib/config";
 </script>
 
 <section id="reviews" class="bg-cream px-12 py-24 sm:px-5 sm:py-12">

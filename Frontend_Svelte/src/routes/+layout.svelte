@@ -1,8 +1,8 @@
 <script lang="ts">
   import '../lib/styles/app.css';
-  import Header from '$lib/components/Header.svelte';
-  import Footer from '$lib/components/Footer.svelte';
-  import { config } from '$lib/config';
+  import Header from '#lib/components/Header.svelte';
+  import Footer from '#lib/components/Footer.svelte';
+  import { config } from '#lib/config';
 
   let { children } = $props();
 </script>

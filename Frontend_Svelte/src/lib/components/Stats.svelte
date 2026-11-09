@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { config } from "$lib/config";
+  import { config } from "#lib/config";
 </script>
 
 <section class="bg-secondary px-6 py-12 md:py-20 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-0">

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { config } from "$lib/config";
+  import { config } from "#lib/config";
 
   let name = $state("");
   let phone = $state("");

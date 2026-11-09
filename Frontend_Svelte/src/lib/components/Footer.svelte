@@ -1,5 +1,5 @@
 <script lang="ts">
-   import { config } from '$lib/config';
+   import { config } from '#lib/config';
 </script>
 
 <footer id="footer" class="bg-primary border-t border-white/5 pt-16 pb-8 relative text-mist">

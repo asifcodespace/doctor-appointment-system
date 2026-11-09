@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { config } from '$lib/config';
+  import { config } from '#lib/config';
 </script>
 
 <section id="hero" class="min-h-screen bg-primary flex items-center px-8 sm:px-12 md:px-16 py-32 md:py-24 relative overflow-hidden">

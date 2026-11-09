@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { config } from "$lib/config";
+  import { config } from "#lib/config";
   let isMenuOpen = $state(false);
   let isDark = $state(false);
   let isScrolled = $state(false);
