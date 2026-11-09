@@ -4,12 +4,12 @@
   const badges = config.doctor.qualifications;
 </script>
 
-<section id="about" class="bg-white px-8 md:px-12 py-[88px] sm:py-16 overflow-hidden">
+<section id="about" class="bg-white px-8 md:px-12 py-22 sm:py-16 overflow-hidden">
   <div class="max-w-6xl mx-auto">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-center">
       <!-- Left: Image Area -->
       <div
-        class="about-img bg-primary rounded-[16px] h-[340px] md:h-[420px] flex items-center justify-center relative group overflow-hidden shadow-sm p-0"
+        class="about-img bg-primary rounded-2xl h-85 md:h-105 flex items-center justify-center relative group overflow-hidden shadow-sm p-0"
       >
         <img
           src={config.doctor.image}
@@ -23,7 +23,7 @@
         </div>
         <!-- Decorative Ring -->
         <div
-          class="absolute -bottom-16 -right-16 w-[300px] h-[300px] rounded-full border border-mist/10 pointer-events-none"
+          class="absolute -bottom-16 -right-16 w-75 h-75 rounded-full border border-mist/10 pointer-events-none"
         ></div>
       </div>
 

@@ -4,8 +4,8 @@
 
 <section id="hero" class="min-h-screen bg-primary flex items-center px-8 sm:px-12 md:px-16 py-32 md:py-24 relative overflow-hidden">
   <!-- Decorative Rings -->
-  <div class="absolute -right-[300px] lg:-right-[400px] -top-[150px] w-[500px] h-[500px] md:w-[900px] md:h-[900px] rounded-full border border-mist/5 pointer-events-none animate-ring-pulse"></div>
-  <div class="absolute -right-[150px] lg:-right-[250px] top-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[550px] md:h-[550px] rounded-full border border-mist/10 pointer-events-none"></div>
+  <div class="absolute -right-[300px] lg:-right-[400px] -top-[150px] w-125 h-125 md:w-[900px] md:h-[900px] rounded-full border border-mist/5 pointer-events-none animate-ring-pulse"></div>
+  <div class="absolute -right-[150px] lg:-right-[250px] top-1/2 -translate-y-1/2 w-75 h-75 md:w-[550px] md:h-[550px] rounded-full border border-mist/10 pointer-events-none"></div>
 
   <div class="relative z-10 max-w-[800px] w-full">
     <div class="text-[11px] md:text-[12px] tracking-[0.2em] uppercase text-accent font-semibold mb-8 md:mb-10 animate-fade-up" style="animation-delay: 0.2s;">

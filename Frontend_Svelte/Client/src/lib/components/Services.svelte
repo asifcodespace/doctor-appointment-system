@@ -18,7 +18,7 @@
   };
 </script>
 
-<section id="services" class="bg-cream px-12 py-[88px] sm:px-6 sm:py-16">
+<section id="services" class="bg-cream px-12 py-22 sm:px-6 sm:py-16">
   <div
     class="text-[11px] tracking-[0.18em] uppercase text-secondary font-medium mb-3"
   >
@@ -35,7 +35,7 @@
   >
     {#each config.services as service}
       <div
-        class="bg-white rounded-[12px] p-8 border border-light transition-all duration-300 hover:shadow-[0_12px_32px_rgba(26,61,58,0.08)] group cursor-default"
+        class="bg-white rounded-xl p-8 border border-light transition-all duration-300 hover:shadow-[0_12px_32px_rgba(26,61,58,0.08)] group cursor-default"
       >
         <div
           class="w-12 h-12 rounded-[10px] bg-primary flex items-center justify-center text-[22px] mb-6 transition-colors duration-200 group-hover:bg-secondary"

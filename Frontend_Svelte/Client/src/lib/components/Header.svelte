@@ -33,7 +33,7 @@
 </script>
 
 <header
-  class="fixed top-0 left-0 right-0 z-50 h-[72px] md:h-[80px] flex items-center px-3 sm:px-4 md:px-12 lg:px-16 gap-1.5 sm:gap-2 md:gap-8 transition-all duration-500 {isScrolled ? 'bg-primary/90 backdrop-blur-md shadow-lg border-b border-white/5' : 'bg-transparent'}"
+  class="fixed top-0 left-0 right-0 z-50 h-18 md:h-20 flex items-center px-3 sm:px-4 md:px-12 lg:px-16 gap-1.5 sm:gap-2 md:gap-8 transition-all duration-500 {isScrolled ? 'bg-primary/90 backdrop-blur-md shadow-lg border-b border-white/5' : 'bg-transparent'}"
 >
   <!-- Logo -->
   <a
@@ -83,20 +83,20 @@
 
   <!-- Mobile Toggle -->
   <button
-    class="flex md:hidden flex-col gap-[4px] sm:gap-[5px] p-2 sm:p-3 -mr-1 sm:-mr-2 bg-none border-none cursor-pointer shrink-0"
+    class="flex md:hidden flex-col gap-1 sm:gap-[5px] p-2 sm:p-3 -mr-1 sm:-mr-2 bg-none border-none cursor-pointer shrink-0"
     onclick={toggleMenu}
     aria-label="Toggle menu"
   >
     <span
-      class="block w-[18px] sm:w-[22px] h-[2px] bg-mist rounded-[2px] transition-all duration-200"
+      class="block w-[18px] sm:w-[22px] h-0.5 bg-mist rounded-xs transition-all duration-200"
       style={isMenuOpen ? "transform: rotate(45deg) translate(5px,5px)" : ""}
     ></span>
     <span
-      class="block w-[18px] sm:w-[22px] h-[2px] bg-mist rounded-[2px] transition-all duration-200"
+      class="block w-[18px] sm:w-[22px] h-0.5 bg-mist rounded-xs transition-all duration-200"
       style={isMenuOpen ? "opacity: 0" : ""}
     ></span>
     <span
-      class="block w-[18px] sm:w-[22px] h-[2px] bg-mist rounded-[2px] transition-all duration-200"
+      class="block w-[18px] sm:w-[22px] h-0.5 bg-mist rounded-xs transition-all duration-200"
       style={isMenuOpen ? "transform: rotate(-45deg) translate(5px,-5px)" : ""}
     ></span>
   </button>
@@ -104,7 +104,7 @@
   <!-- Mobile Menu -->
   {#if isMenuOpen}
     <div
-      class="fixed inset-0 top-[72px] md:top-[80px] z-50 bg-primary flex flex-col px-12 sm:px-6 py-8 border-t border-white/5 animate-slide-down shadow-xl overflow-y-auto"
+      class="fixed inset-0 top-18 md:top-20 z-50 bg-primary flex flex-col px-12 sm:px-6 py-8 border-t border-white/5 animate-slide-down shadow-xl overflow-y-auto"
     >
       {#each config.sections.header.navLinks as item}
         <a

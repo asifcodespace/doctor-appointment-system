@@ -77,7 +77,7 @@
         <div class="flex flex-col gap-8">
           <div class="flex gap-5 items-center">
             <div
-              class="shrink-0 w-12 h-12 rounded-[12px] bg-primary flex items-center justify-center text-[20px]"
+              class="shrink-0 w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-[20px]"
             >
               <span class="opacity-80">📞</span>
             </div>
@@ -91,7 +91,7 @@
 
           <div class="flex gap-5 items-center">
             <div
-              class="shrink-0 w-12 h-12 rounded-[12px] bg-primary flex items-center justify-center text-[20px]"
+              class="shrink-0 w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-[20px]"
             >
               <span class="opacity-80">✉️</span>
             </div>
@@ -105,7 +105,7 @@
 
           <div class="flex gap-5 items-center">
             <div
-              class="shrink-0 w-12 h-12 rounded-[12px] bg-primary flex items-center justify-center text-[20px]"
+              class="shrink-0 w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-[20px]"
             >
               <span class="opacity-80">📍</span>
             </div>
@@ -119,7 +119,7 @@
 
           <div class="flex gap-5 items-center">
             <div
-              class="shrink-0 w-12 h-12 rounded-[12px] bg-primary flex items-center justify-center text-[20px]"
+              class="shrink-0 w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-[20px]"
             >
               <span class="opacity-80">🕒</span>
             </div>
@@ -141,7 +141,7 @@
 
       <!-- Right Column: Form Column -->
       <div
-        class="bg-primary/2 rounded-[24px] p-12 sm:p-8 border border-primary/5"
+        class="bg-primary/2 rounded-3xl p-12 sm:p-8 border border-primary/5"
       >
         <form class="flex flex-col gap-8" onsubmit={handleSubmit}>
           <div>
@@ -156,7 +156,7 @@
               placeholder="e.g. Abdur Rahman"
               bind:value={name}
               required
-              class="w-full bg-white border border-light rounded-[8px] px-5 py-3.5 text-sm outline-none focus:border-secondary transition-all"
+              class="w-full bg-white border border-light rounded-lg px-5 py-3.5 text-sm outline-none focus:border-secondary transition-all"
             />
           </div>
 
@@ -172,7 +172,7 @@
               placeholder="+880..."
               bind:value={phone}
               required
-              class="w-full bg-white border border-light rounded-[8px] px-5 py-3.5 text-sm outline-none focus:border-secondary transition-all"
+              class="w-full bg-white border border-light rounded-lg px-5 py-3.5 text-sm outline-none focus:border-secondary transition-all"
             />
           </div>
 
@@ -186,7 +186,7 @@
               <select
                 id="reason"
                 bind:value={reason}
-                class="w-full bg-white border border-light rounded-[8px] px-5 py-3.5 text-sm outline-none focus:border-secondary transition-all appearance-none cursor-pointer"
+                class="w-full bg-white border border-light rounded-lg px-5 py-3.5 text-sm outline-none focus:border-secondary transition-all appearance-none cursor-pointer"
               >
                 {#each config.contact.appointmentReasons as opt}
                   <option value={opt}>{opt}</option>
@@ -221,12 +221,12 @@
               id="message"
               placeholder="Describe your symptoms..."
               bind:value={message}
-              class="w-full bg-white border border-light rounded-[8px] px-5 py-3.5 text-sm outline-none focus:border-secondary transition-all min-h-[120px] resize-none"
+              class="w-full bg-white border border-light rounded-lg px-5 py-3.5 text-sm outline-none focus:border-secondary transition-all min-h-30 resize-none"
             ></textarea>
           </div>
 
           {#if errorMessage}
-            <p class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-[8px] px-4 py-3" role="alert">
+            <p class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3" role="alert">
               {errorMessage}
             </p>
           {/if}
@@ -262,10 +262,10 @@
       onclick={closeSuccessModal}
     ></button>
     <div
-      class="relative z-10 bg-white rounded-[24px] p-8 sm:p-10 max-w-md w-full text-center shadow-xl border border-primary/5"
+      class="relative z-10 bg-white rounded-3xl p-8 sm:p-10 max-w-md w-full text-center shadow-xl border border-primary/5"
     >
       <div
-        class="mx-auto mb-5 w-12 h-12 rounded-[12px] bg-primary flex items-center justify-center text-[20px]"
+        class="mx-auto mb-5 w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-[20px]"
       >
         <span class="opacity-80">✓</span>
       </div>
