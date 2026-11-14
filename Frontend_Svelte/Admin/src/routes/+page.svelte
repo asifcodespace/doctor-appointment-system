@@ -8,6 +8,7 @@
 		DEFAULT_DOCTOR,
 		type Appointment,
 		type AppointmentStats,
+		type Pagination,
 		type ServerStatus,
 	} from "#lib/api";
 
@@ -27,6 +28,8 @@
 		lastSyncSeconds: 0,
 	};
 
+	const DEFAULT_PAGE_LIMIT = 10;
+
 	// ── Reactive state ─────────────────────────────────────────────────────────
 	let appointments = $state<Appointment[]>(SEED_APPOINTMENTS);
 	let stats = $state<AppointmentStats>(SEED_STATS);
@@ -34,21 +37,36 @@
 	let lastSyncTime = $state<number | null>(null);
 	let secondsSinceSync = $state(0);
 
+	let currentPage = $state(1);
+	let pageLimit = $state(DEFAULT_PAGE_LIMIT);
+	let pagination = $state<Pagination>({
+		page: 1,
+		limit: DEFAULT_PAGE_LIMIT,
+		totalItems: 0,
+		totalPages: 1,
+	});
+
 	let searchQuery = $state("");
 	let activeFilter = $state<"All" | "Pending" | "Confirmed">("All");
 	let isRefreshing = $state(false);
 	let apiError = $state<string | null>(null);
 
 	// ── Data loading ───────────────────────────────────────────────────────────
-	async function loadData() {
+	async function loadData(targetPage = currentPage) {
 		try {
-			const [appts, st, srv] = await Promise.all([
-				fetchAppointments(),
+			const [apptsResult, st, srv] = await Promise.all([
+				fetchAppointments({
+					page: targetPage,
+					limit: pageLimit,
+					search: searchQuery,
+				}),
 				fetchAppointmentStats(),
 				fetchServerStatus(),
 			]);
-			appointments = appts;
-			stats = completeAppointmentStats(st, appts);
+			appointments = apptsResult.appointments;
+			pagination = apptsResult.pagination;
+			currentPage = apptsResult.pagination.page;
+			stats = completeAppointmentStats(st, appointments);
 			serverStatus = srv;
 			lastSyncTime = Date.now();
 			secondsSinceSync = 0;
@@ -65,6 +83,23 @@
 					? err.message
 					: "Failed to reach the server.";
 		}
+	}
+
+	function goToPage(page: number) {
+		if (page < 1 || page > pagination.totalPages || page === currentPage) return;
+		currentPage = page;
+		loadData(page);
+	}
+
+	let searchDebounceTimeout: ReturnType<typeof setTimeout> | undefined;
+	function handleSearchInput(e: Event) {
+		const target = e.target as HTMLInputElement;
+		searchQuery = target.value;
+		clearTimeout(searchDebounceTimeout);
+		searchDebounceTimeout = setTimeout(() => {
+			currentPage = 1;
+			loadData(1);
+		}, 300);
 	}
 
 	onMount(() => {
@@ -112,15 +147,6 @@
 			if (activeFilter === "Confirmed" && apt.status !== "Confirmed")
 				return false;
 
-			if (searchQuery.trim()) {
-				const q = searchQuery.toLowerCase().trim();
-				return (
-					apt.patient.name.toLowerCase().includes(q) ||
-					apt.patient.id.toLowerCase().includes(q) ||
-					apt.doctor.toLowerCase().includes(q) ||
-					apt.type.toLowerCase().includes(q)
-				);
-			}
 			return true;
 		}),
 	);
@@ -299,7 +325,8 @@
 					</svg>
 					<input
 						type="text"
-						bind:value={searchQuery}
+						value={searchQuery}
+						oninput={handleSearchInput}
 						aria-label="Search patients"
 						placeholder="Search patient or doctor"
 						class="w-52 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-secondary"
@@ -537,6 +564,98 @@
 					{/each}
 				{/if}
 			</div>
+
+			<!-- Pagination Footer -->
+			{#if pagination.totalItems > 0}
+				<div
+					class="flex flex-wrap items-center justify-between gap-4 border-t border-brand-border-subtle px-6 py-4 text-sm text-text-secondary"
+				>
+					<div>
+						Showing
+						<span class="font-semibold text-text-primary">
+							{(pagination.page - 1) * pagination.limit + 1}
+						</span>
+						to
+						<span class="font-semibold text-text-primary">
+							{Math.min(
+								pagination.page * pagination.limit,
+								pagination.totalItems,
+							)}
+						</span>
+						of
+						<span class="font-semibold text-text-primary">
+							{pagination.totalItems}
+						</span>
+						appointments
+					</div>
+
+					<div class="flex items-center gap-1.5">
+						<!-- Previous Page Button -->
+						<button
+							type="button"
+							disabled={currentPage <= 1}
+							onclick={() => goToPage(currentPage - 1)}
+							class="flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-xl border border-btn-border bg-btn-dark px-3 text-sm font-medium text-text-primary transition-all hover:border-btn-border-hover hover:bg-btn-hover disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-btn-border disabled:hover:bg-btn-dark"
+							aria-label="Previous page"
+						>
+							<svg
+								aria-hidden="true"
+								width="16"
+								height="16"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M15 18l-6-6 6-6" />
+							</svg>
+						</button>
+
+						<!-- Page Numbers -->
+						{#each Array.from({ length: pagination.totalPages }, (_, i) => i + 1) as pageNum}
+							{#if pageNum === 1 || pageNum === pagination.totalPages || (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)}
+								<button
+									type="button"
+									onclick={() => goToPage(pageNum)}
+									class="flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-xl border px-3 text-sm font-semibold transition-all {pageNum ===
+									currentPage
+										? 'border-brand-teal bg-brand-teal text-brand-bg'
+										: 'border-btn-border bg-btn-dark text-text-primary hover:border-btn-border-hover hover:bg-btn-hover'}"
+								>
+									{pageNum}
+								</button>
+							{:else if (pageNum === currentPage - 2 && pageNum > 1) || (pageNum === currentPage + 2 && pageNum < pagination.totalPages)}
+								<span class="px-1 text-text-secondary">...</span>
+							{/if}
+						{/each}
+
+						<!-- Next Page Button -->
+						<button
+							type="button"
+							disabled={currentPage >= pagination.totalPages}
+							onclick={() => goToPage(currentPage + 1)}
+							class="flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-xl border border-btn-border bg-btn-dark px-3 text-sm font-medium text-text-primary transition-all hover:border-btn-border-hover hover:bg-btn-hover disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-btn-border disabled:hover:bg-btn-dark"
+							aria-label="Next page"
+						>
+							<svg
+								aria-hidden="true"
+								width="16"
+								height="16"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M9 18l6-6-6-6" />
+							</svg>
+						</button>
+					</div>
+				</div>
+			{/if}
 		</section>
 	</main>
 </div>

@@ -51,6 +51,18 @@ export interface ServerStatus {
 	timestamp?: number;
 }
 
+export interface Pagination {
+	page: number;
+	limit: number;
+	totalItems: number;
+	totalPages: number;
+}
+
+export interface PaginatedAppointmentsResult {
+	appointments: Appointment[];
+	pagination: Pagination;
+}
+
 /** Used when a booking has no doctor on record. */
 export const DEFAULT_DOCTOR = 'Dr Nafis Tarafder';
 
@@ -140,20 +152,19 @@ async function handleResponse<T>(res: Response): Promise<T> {
 // ─── Appointments API ─────────────────────────────────────────────────────────
 
 /**
- * Fetch all appointments for today (and upcoming).
+ * Fetch appointments for today (and upcoming), with server-side pagination and search support.
  *
- * GET /api/appointments
- * Query params:
- *   status  — optional filter: "Pending" | "Confirmed" | "Cancelled" | "Checked in"
- *   search  — optional free-text search string
+ * GET /appointments?search=...&page=...&limit=...
  *
- * Expected response shape:
- *   { appointments: Appointment[] }
+ * Backend returns:
+ *   { data: { appointments: [...] }, pagination: { page, limit, totalItems, totalPages } }
  */
 export async function fetchAppointments(params?: {
 	status?: AppointmentStatus | 'All';
 	search?: string;
-}): Promise<Appointment[]> {
+	page?: number;
+	limit?: number;
+}): Promise<PaginatedAppointmentsResult> {
 	const url = new URL(`${BASE_URL}/appointments`);
 
 	if (params?.status && params.status !== 'All') {
@@ -162,6 +173,12 @@ export async function fetchAppointments(params?: {
 	if (params?.search?.trim()) {
 		url.searchParams.set('search', params.search.trim());
 	}
+	if (params?.page && params.page > 0) {
+		url.searchParams.set('page', params.page.toString());
+	}
+	if (params?.limit && params.limit > 0) {
+		url.searchParams.set('limit', params.limit.toString());
+	}
 
 	const res = await fetch(url.toString(), {
 		method: 'GET',
@@ -169,17 +186,44 @@ export async function fetchAppointments(params?: {
 		credentials: 'include'
 	});
 
-	interface AppointmentsResponse {
+	interface AppointmentsApiResponse {
 		appointments?: Array<Partial<Appointment>>;
 		data?: { appointments?: Array<Partial<Appointment>> } | Array<Partial<Appointment>>;
+		pagination?: {
+			page?: number;
+			limit?: number;
+			totalItems?: number;
+			totalPages?: number;
+		};
 	}
 
-	const data = await handleResponse<AppointmentsResponse>(res);
+	const data = await handleResponse<AppointmentsApiResponse>(res);
 	const items = Array.isArray(data.data)
 		? data.data
 		: (data.data?.appointments ?? data.appointments ?? []);
 
-	return items.map((apt) => withAppointmentDefaults(apt));
+	const appointments = items.map((apt) => withAppointmentDefaults(apt));
+	const serverTotalItems = data.pagination?.totalItems ?? appointments.length;
+	const serverLimit = data.pagination?.limit ?? params?.limit ?? 10;
+	// Calculate total pages safely in frontend even if backend sends totalcnt / limit (which yields 0 when totalcnt < limit or truncates)
+	const calculatedTotalPages = serverLimit > 0
+		? Math.max(1, Math.ceil(serverTotalItems / serverLimit))
+		: 1;
+
+	const pagination: Pagination = {
+		page: data.pagination?.page ?? params?.page ?? 1,
+		limit: serverLimit,
+		totalItems: serverTotalItems,
+		totalPages:
+			data.pagination?.totalPages && data.pagination.totalPages > 0
+				? Math.max(data.pagination.totalPages, calculatedTotalPages)
+				: calculatedTotalPages
+	};
+
+	return {
+		appointments,
+		pagination
+	};
 }
 
 /**
