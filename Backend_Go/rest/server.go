@@ -3,6 +3,7 @@ package rest
 import (
 	"doctors-app/config"
 	"doctors-app/rest/handlers/appointment"
+	"doctors-app/rest/handlers/server_status"
 	middleware "doctors-app/rest/middlewares"
 	"fmt"
 	"net/http"
@@ -13,15 +14,18 @@ import (
 type Server struct {
 	cnf                *config.Config
 	appointmentHandler *appointment.Handler
+	serverstatusHndler *server_status.Handler
 }
 
 func NewServer(
 	cnf *config.Config,
 	appointmentHandler *appointment.Handler,
+	serverstatusHndler *server_status.Handler,
 ) *Server {
 	return &Server{
 		cnf:                cnf,
 		appointmentHandler: appointmentHandler,
+		serverstatusHndler: serverstatusHndler,
 	}
 }
 
@@ -37,6 +41,7 @@ func (server *Server) Start() {
 	wrappedMux := manager.WrapMux(mux)
 
 	server.appointmentHandler.RegisterRoutes(mux, manager)
+	server.serverstatusHndler.RegisterRoutes(mux, manager)
 
 	addr := ":" + strconv.Itoa(server.cnf.HttpPort)
 	fmt.Println("Server running on port", addr)

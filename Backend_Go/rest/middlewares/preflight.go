@@ -7,7 +7,7 @@ func Preflight(next http.Handler) http.Handler {
 
 		if r.Method == "OPTIONS" {
 
-			w.WriteHeader(200)
+			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 		next.ServeHTTP(w, r)

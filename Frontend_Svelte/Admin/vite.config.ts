@@ -7,7 +7,8 @@ try {
 	const auto = await import('@sveltejs/adapter-auto');
 	adapter = auto.default;
 } catch {
-	// fallback if needed
+	const netlify = await import('@sveltejs/adapter-netlify');
+	adapter = netlify.default;
 }
 
 export default defineConfig({

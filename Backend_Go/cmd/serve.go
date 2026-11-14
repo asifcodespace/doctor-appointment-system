@@ -7,6 +7,7 @@ import (
 	"doctors-app/repo"
 	"doctors-app/rest"
 	appointmentHandler "doctors-app/rest/handlers/appointment"
+	srvrstatusHandler "doctors-app/rest/handlers/server_status"
 	"fmt"
 	"os"
 )
@@ -33,10 +34,12 @@ func Serve() {
 
 	//handlers
 	apptHandler := appointmentHandler.NewHandler(appointmentSvc)
+	serverstatusHndlr := srvrstatusHandler.NewHandler()
 
 	server := rest.NewServer(
 		cnf,
 		apptHandler,
+		serverstatusHndlr,
 	)
 	server.Start()
 

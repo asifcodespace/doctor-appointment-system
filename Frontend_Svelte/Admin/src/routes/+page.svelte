@@ -1,127 +1,116 @@
 <script lang="ts">
-	interface Patient {
-		name: string;
-		id: string;
-		initials: string;
-		avatarBg: string;
-	}
+	import { onMount } from "svelte";
+	import {
+		completeAppointmentStats,
+		fetchAppointments,
+		fetchAppointmentStats,
+		fetchServerStatus,
+		DEFAULT_DOCTOR,
+		type Appointment,
+		type AppointmentStats,
+		type ServerStatus,
+	} from "#lib/api";
 
-	interface Appointment {
-		id: string;
-		patient: Patient;
-		doctor: string;
-		dateTime: string;
-		type: string;
-		status: 'Confirmed' | 'Pending' | 'Checked in' | 'Cancelled';
-	}
+	// ── Fallback / seed data (used when backend is unreachable) ────────────────
+	const SEED_APPOINTMENTS: Appointment[] = [];
 
-	// Initial data matching the reference design and attached image
-	const initialAppointments: Appointment[] = [
-		{
-			id: 'APT-2041',
-			patient: {
-				name: 'Amina Rahman',
-				id: '#APT-2041',
-				initials: 'AR',
-				avatarBg: '#6D5EF5'
-			},
-			doctor: 'Dr. Karim Hasan',
-			dateTime: 'Today · 09:30',
-			type: 'Cardiology',
-			status: 'Confirmed'
-		},
-		{
-			id: 'APT-2042',
-			patient: {
-				name: 'Tanvir Islam',
-				id: '#APT-2042',
-				initials: 'TI',
-				avatarBg: '#14B8A6'
-			},
-			doctor: 'Dr. Nusrat Jahan',
-			dateTime: 'Today · 10:15',
-			type: 'General Checkup',
-			status: 'Pending'
-		},
-		{
-			id: 'APT-2043',
-			patient: {
-				name: 'Sadia Akter',
-				id: '#APT-2043',
-				initials: 'SA',
-				avatarBg: '#F472B6'
-			},
-			doctor: 'Dr. Karim Hasan',
-			dateTime: 'Today · 11:00',
-			type: 'Cardiology',
-			status: 'Confirmed'
-		},
-		{
-			id: 'APT-2044',
-			patient: {
-				name: 'Mahin Hossain',
-				id: '#APT-2044',
-				initials: 'MH',
-				avatarBg: '#F59E0B'
-			},
-			doctor: 'Dr. Farhana Sultana',
-			dateTime: 'Today · 12:45',
-			type: 'Dermatology',
-			status: 'Checked in'
-		},
-		{
-			id: 'APT-2045',
-			patient: {
-				name: 'Rafi Khan',
-				id: '#APT-2045',
-				initials: 'RK',
-				avatarBg: '#38BDF8'
-			},
-			doctor: 'Dr. Nusrat Jahan',
-			dateTime: 'Tomorrow · 09:00',
-			type: 'Pediatrics',
-			status: 'Pending'
-		},
-		{
-			id: 'APT-2046',
-			patient: {
-				name: 'Lamia Begum',
-				id: '#APT-2046',
-				initials: 'LB',
-				avatarBg: '#A78BFA'
-			},
-			doctor: 'Dr. Farhana Sultana',
-			dateTime: 'Tomorrow · 10:30',
-			type: 'Dermatology',
-			status: 'Cancelled'
-		}
-	];
+	const SEED_STATS: AppointmentStats = {
+		totalToday: 0,
+		doctorCount: 1,
+		confirmed: 0,
+		pending: 0,
+		cancelled: 0,
+	};
 
-	// Reactive states
-	let appointments = $state<Appointment[]>(initialAppointments);
-	let searchQuery = $state('');
-	let activeFilter = $state<'All' | 'Pending' | 'Confirmed'>('All');
+	const SEED_SERVER_STATUS: ServerStatus = {
+		connected: false,
+		lastSyncSeconds: 0,
+	};
+
+	// ── Reactive state ─────────────────────────────────────────────────────────
+	let appointments = $state<Appointment[]>(SEED_APPOINTMENTS);
+	let stats = $state<AppointmentStats>(SEED_STATS);
+	let serverStatus = $state<ServerStatus>(SEED_SERVER_STATUS);
+	let lastSyncTime = $state<number | null>(null);
+	let secondsSinceSync = $state(0);
+
+	let searchQuery = $state("");
+	let activeFilter = $state<"All" | "Pending" | "Confirmed">("All");
 	let isRefreshing = $state(false);
+	let apiError = $state<string | null>(null);
 
-	// Refresh simulation (pure UI)
-	function handleRefresh() {
+	// ── Data loading ───────────────────────────────────────────────────────────
+	async function loadData() {
+		try {
+			const [appts, st, srv] = await Promise.all([
+				fetchAppointments(),
+				fetchAppointmentStats(),
+				fetchServerStatus(),
+			]);
+			appointments = appts;
+			stats = completeAppointmentStats(st, appts);
+			serverStatus = srv;
+			lastSyncTime = Date.now();
+			secondsSinceSync = 0;
+			serverStatus.lastSyncSeconds = 0;
+			apiError = null;
+		} catch (err) {
+			// Backend not yet available — keep seed data visible, surface the error
+			serverStatus = {
+				...serverStatus,
+				connected: false,
+			};
+			apiError =
+				err instanceof Error
+					? err.message
+					: "Failed to reach the server.";
+		}
+	}
+
+	onMount(() => {
+		loadData();
+
+		// Real-time second-by-second ticker for elapsed sync time
+		const tickTimer = setInterval(() => {
+			if (lastSyncTime !== null && serverStatus.connected) {
+				secondsSinceSync = Math.max(
+					0,
+					Math.floor((Date.now() - lastSyncTime) / 1000),
+				);
+				serverStatus.lastSyncSeconds = secondsSinceSync;
+			}
+		}, 1000);
+
+		// Periodic background sync every 15 seconds for live dashboard updates
+		const syncTimer = setInterval(() => {
+			if (typeof document === "undefined" || !document.hidden) {
+				if (!isRefreshing) {
+					loadData();
+				}
+			}
+		}, 15000);
+
+		return () => {
+			clearInterval(tickTimer);
+			clearInterval(syncTimer);
+		};
+	});
+
+	// ── Refresh (re-fetches from API, falls back to seed on error) ─────────────
+	async function handleRefresh() {
 		if (isRefreshing) return;
 		isRefreshing = true;
-		setTimeout(() => {
-			appointments = [...initialAppointments];
-			isRefreshing = false;
-		}, 400);
+		await loadData();
+		isRefreshing = false;
 	}
 
-	// Filtered list
+	// ── Filtered list (pure derived — filtering stays client-side) ─────────────
 	let filteredAppointments = $derived(
 		appointments.filter((apt) => {
-			if (activeFilter === 'Pending' && apt.status !== 'Pending') {
+			if (activeFilter === "Pending" && apt.status !== "Pending")
 				return false;
-			}
-			if (activeFilter === 'Confirmed' && apt.status !== 'Confirmed') {
+			if (activeFilter === "Confirmed" && apt.status !== "Confirmed")
 				return false;
-			}
 
 			if (searchQuery.trim()) {
 				const q = searchQuery.toLowerCase().trim();
@@ -132,48 +121,63 @@
 					apt.type.toLowerCase().includes(q)
 				);
 			}
-
 			return true;
-		})
+		}),
 	);
 
-	// Badge styling helper
-	function getStatusBadge(status: Appointment['status']) {
+	// ── Last-sync label ────────────────────────────────────────────────────────
+	let lastSyncLabel = $derived(
+		serverStatus.connected
+			? secondsSinceSync < 60
+				? `Last sync ${secondsSinceSync}s ago`
+				: secondsSinceSync < 3600
+					? `Last sync ${Math.floor(secondsSinceSync / 60)}m ${secondsSinceSync % 60}s ago`
+					: `Last sync ${Math.floor(secondsSinceSync / 3600)}h ago`
+			: "Not connected",
+	);
+
+	// ── Badge styling helper ───────────────────────────────────────────────────
+	function getStatusBadge(status: Appointment["status"]) {
 		switch (status) {
-			case 'Confirmed':
+			case "Confirmed":
 				return {
-					color: 'var(--color-status-green)',
-					bg: 'rgba(52, 211, 153, 0.14)'
+					color: "var(--color-status-green)",
+					bg: "rgba(52, 211, 153, 0.14)",
 				};
-			case 'Pending':
+			case "Pending":
 				return {
-					color: 'var(--color-status-amber)',
-					bg: 'rgba(251, 191, 36, 0.14)'
+					color: "var(--color-status-amber)",
+					bg: "rgba(251, 191, 36, 0.14)",
 				};
-			case 'Checked in':
+			case "Checked in":
 				return {
-					color: 'var(--color-status-blue)',
-					bg: 'rgba(125, 211, 252, 0.14)'
+					color: "var(--color-status-blue)",
+					bg: "rgba(125, 211, 252, 0.14)",
 				};
-			case 'Cancelled':
+			case "Cancelled":
 				return {
-					color: 'var(--color-status-red)',
-					bg: 'rgba(252, 165, 165, 0.14)'
+					color: "var(--color-status-red)",
+					bg: "rgba(252, 165, 165, 0.14)",
+				};
+			default:
+				return {
+					color: "var(--color-text-secondary)",
+					bg: "rgba(255,255,255,0.08)",
 				};
 		}
 	}
 </script>
 
-<div
-	class="flex min-h-225 w-full bg-brand-bg font-sans text-text-primary"
->
+<div class="flex min-h-225 w-full bg-brand-bg font-sans text-text-primary">
 	<!-- Sidebar -->
 	<aside
 		class="side hidden md:flex w-62.5 shrink-0 flex-col gap-7 border-r border-brand-border-subtle bg-brand-sidebar p-7"
 	>
 		<!-- Logo -->
 		<div class="flex items-center gap-3 px-1.5">
-			<span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-teal">
+			<span
+				class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-teal"
+			>
 				<svg
 					aria-hidden="true"
 					width="22"
@@ -246,11 +250,17 @@
 			class="mt-auto flex flex-col gap-1.5 rounded-2xl border border-brand-border bg-brand-status-card p-4"
 		>
 			<span class="text-xs text-text-secondary">Server status</span>
-			<span class="flex items-center gap-2 text-sm font-semibold text-white">
-				<span class="h-2 w-2 rounded-full bg-status-green"></span>
-				Connected
+			<span
+				class="flex items-center gap-2 text-sm font-semibold text-white"
+			>
+				<span
+					class="h-2 w-2 rounded-full {serverStatus.connected
+						? 'bg-status-green'
+						: 'bg-status-red'}"
+				></span>
+				{serverStatus.connected ? "Connected" : "Offline"}
 			</span>
-			<span class="text-xs text-text-secondary">Last sync 12 sec ago</span>
+			<span class="text-xs text-text-secondary">{lastSyncLabel}</span>
 		</div>
 	</aside>
 
@@ -259,7 +269,11 @@
 		<!-- Header -->
 		<header class="flex flex-wrap items-center justify-between gap-4">
 			<div>
-				<h1 class="m-0 text-3xl font-extrabold tracking-tight text-white">Appointments</h1>
+				<h1
+					class="m-0 text-3xl font-extrabold tracking-tight text-white"
+				>
+					Appointments
+				</h1>
 				<p class="mt-1.5 text-sm text-text-secondary">
 					Live from the patient booking server · Monday, 9 November
 				</p>
@@ -299,7 +313,7 @@
 				>
 					<svg
 						aria-hidden="true"
-						class={isRefreshing ? 'animate-spin' : ''}
+						class={isRefreshing ? "animate-spin" : ""}
 						width="18"
 						height="18"
 						viewBox="0 0 24 24"
@@ -317,49 +331,98 @@
 			</div>
 		</header>
 
+		<!-- API error banner (only shown when backend is unreachable) -->
+		{#if apiError}
+			<div
+				class="flex items-center gap-3 rounded-2xl border border-status-red/30 bg-status-red/10 px-5 py-3 text-sm text-status-red"
+			>
+				<svg
+					aria-hidden="true"
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+				>
+					<circle cx="12" cy="12" r="10" />
+					<path d="M12 8v4M12 16h.01" />
+				</svg>
+				<span
+					>Server not reachable — showing cached data. ({apiError})</span
+				>
+			</div>
+		{/if}
+
 		<!-- 4 Stats Cards -->
 		<section class="grid grid-cols-1 gap-4.5 sm:grid-cols-2 lg:grid-cols-4">
-			<div class="flex flex-col gap-1.5 rounded-5 border border-brand-border bg-brand-card p-5.5">
+			<div
+				class="flex flex-col gap-1.5 rounded-5 border border-brand-border bg-brand-card p-5.5"
+			>
 				<span class="text-3.25 text-text-secondary">Total today</span>
-				<span class="text-4xl font-bold tracking-tight text-text-primary">24</span>
-				<span class="text-xs text-text-secondary">Across 4 doctors</span>
+				<span
+					class="text-4xl font-bold tracking-tight text-text-primary"
+					>{stats.totalToday}</span
+				>
+				<span class="text-xs text-text-secondary"
+					>Across {stats.doctorCount} doctors</span
+				>
 			</div>
 
-			<div class="flex flex-col gap-1.5 rounded-5 border border-brand-border bg-brand-card p-5.5">
+			<div
+				class="flex flex-col gap-1.5 rounded-5 border border-brand-border bg-brand-card p-5.5"
+			>
 				<span class="text-3.25 text-text-secondary">Confirmed</span>
-				<span class="text-4xl font-bold tracking-tight text-status-green">15</span>
-				<span class="text-xs text-text-secondary">Ready to be seen</span>
+				<span
+					class="text-4xl font-bold tracking-tight text-status-green"
+					>{stats.confirmed}</span
+				>
+				<span class="text-xs text-text-secondary">Ready to be seen</span
+				>
 			</div>
 
-			<div class="flex flex-col gap-1.5 rounded-5 border border-brand-border bg-brand-card p-5.5">
+			<div
+				class="flex flex-col gap-1.5 rounded-5 border border-brand-border bg-brand-card p-5.5"
+			>
 				<span class="text-3.25 text-text-secondary">Pending</span>
-				<span class="text-4xl font-bold tracking-tight text-status-amber">6</span>
-				<span class="text-xs text-text-secondary">Awaiting approval</span>
+				<span
+					class="text-4xl font-bold tracking-tight text-status-amber"
+					>{stats.pending}</span
+				>
+				<span class="text-xs text-text-secondary"
+					>Awaiting approval</span
+				>
 			</div>
 
-			<div class="flex flex-col gap-1.5 rounded-5 border border-brand-border bg-brand-card p-5.5">
+			<div
+				class="flex flex-col gap-1.5 rounded-5 border border-brand-border bg-brand-card p-5.5"
+			>
 				<span class="text-3.25 text-text-secondary">Cancelled</span>
-				<span class="text-4xl font-bold tracking-tight text-status-red">3</span>
+				<span class="text-4xl font-bold tracking-tight text-status-red"
+					>{stats.cancelled}</span
+				>
 				<span class="text-xs text-text-secondary">Slots reopened</span>
 			</div>
 		</section>
 
 		<!-- Appointments Table Section -->
-		<section class="overflow-hidden rounded-3xl border border-brand-border bg-brand-card">
+		<section
+			class="overflow-hidden rounded-3xl border border-brand-border bg-brand-card"
+		>
 			<!-- Header inside table card -->
-			<div class="flex flex-wrap items-center justify-between gap-3 p-5.5 px-6">
+			<div
+				class="flex flex-wrap items-center justify-between gap-3 p-5.5 px-6"
+			>
 				<div class="flex items-center gap-3">
-					<h2 class="m-0 text-lg font-bold text-white">Upcoming appointments</h2>
-					<span
-						class="rounded-lg bg-brand-teal/12 px-2.5 py-1 font-mono text-xs font-medium text-brand-teal"
-					>
-						GET /api/appointments
-					</span>
+					<h2 class="m-0 text-lg font-bold text-white">
+						Upcoming appointments
+					</h2>
 				</div>
 
 				<div class="flex items-center gap-2">
 					<button
-						onclick={() => (activeFilter = 'All')}
+						onclick={() => (activeFilter = "All")}
 						class="cursor-pointer rounded-full px-3.5 py-2 text-3.25 font-semibold transition-colors {activeFilter ===
 						'All'
 							? 'bg-brand-active text-white'
@@ -368,7 +431,7 @@
 						All
 					</button>
 					<button
-						onclick={() => (activeFilter = 'Pending')}
+						onclick={() => (activeFilter = "Pending")}
 						class="cursor-pointer rounded-full px-3.5 py-2 text-3.25 font-semibold transition-colors {activeFilter ===
 						'Pending'
 							? 'bg-brand-active text-white'
@@ -377,7 +440,7 @@
 						Pending
 					</button>
 					<button
-						onclick={() => (activeFilter = 'Confirmed')}
+						onclick={() => (activeFilter = "Confirmed")}
 						class="cursor-pointer rounded-full px-3.5 py-2 text-3.25 font-semibold transition-colors {activeFilter ===
 						'Confirmed'
 							? 'bg-brand-active text-white'
@@ -404,7 +467,9 @@
 
 				<!-- Table Body Rows -->
 				{#if filteredAppointments.length === 0}
-					<div class="border-t border-brand-border-subtle px-6 py-12 text-center text-sm text-text-secondary">
+					<div
+						class="border-t border-brand-border-subtle px-6 py-12 text-center text-sm text-text-secondary"
+					>
 						No appointments found matching your criteria.
 					</div>
 				{:else}
@@ -416,14 +481,21 @@
 							<!-- Patient -->
 							<div class="flex items-center gap-3">
 								<span
-									style="background-color: {apt.patient.avatarBg};"
+									style="background-color: {apt.patient
+										.avatarBg};"
 									class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-brand-bg"
 								>
 									{apt.patient.initials}
 								</span>
 								<div>
-									<div class="font-semibold text-text-primary">{apt.patient.name}</div>
-									<div class="text-xs text-text-secondary">{apt.patient.id}</div>
+									<div
+										class="font-semibold text-text-primary"
+									>
+										{apt.patient.name}
+									</div>
+									<div class="text-xs text-text-secondary">
+										{apt.patient.id}
+									</div>
 								</div>
 							</div>
 
@@ -454,7 +526,8 @@
 							<div>
 								<button
 									type="button"
-									aria-label="View appointment {apt.patient.name}"
+									aria-label="View appointment {apt.patient
+										.name}"
 									class="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-xl border border-btn-border bg-btn-dark px-4 text-sm font-semibold text-text-primary transition-all hover:border-btn-border-hover hover:bg-btn-hover"
 								>
 									View

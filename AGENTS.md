@@ -1,4 +1,23 @@
-# Project Guidelines
+# Project Guidelines for AI Agents & Developers
+
+## AI Agent Quick-Start & Architecture Map
+- **Project Structure Source of Truth**: Before exploring files or running deep recursive searches, refer to [PROJECT_STRUCTURE.md](file:///home/asif/Projects/Full_stack_projects/doctor-s_Brand_Frontend+Backend/PROJECT_STRUCTURE.md).
+- **Subsystem Breakdown**:
+  - `Backend_Go/`: Go 1.24 REST API running on `:4000` (PostgreSQL, SQLX).
+  - `Frontend_Svelte/Admin/`: SvelteKit Admin portal running on `:5174` (Svelte 5 runes, live server status sync).
+  - `Frontend_Svelte/Client/`: SvelteKit Patient booking & brand portal.
+  - `scripts/verify-structure.sh`: Quick structure verification script.
+
+## Mandatory Agent Handoff Protocol
+1. **On Arrival**:
+   - Read [PROJECT_STRUCTURE.md](file:///home/asif/Projects/Full_stack_projects/doctor-s_Brand_Frontend+Backend/PROJECT_STRUCTURE.md) to understand current directory layout, ports, and API routes without burning unnecessary tokens.
+2. **During Work**:
+   - Respect component and layer boundaries (Go: handler -> service -> repo -> domain; Frontend: Svelte 5 runes).
+   - Strictly follow the Tailwind CSS v4 conventions below.
+3. **Before Departure (Task Completion)**:
+   - If any directories, files, endpoints, routes, or database schemas were added, modified, or removed:
+     - Update [PROJECT_STRUCTURE.md](file:///home/asif/Projects/Full_stack_projects/doctor-s_Brand_Frontend+Backend/PROJECT_STRUCTURE.md) to reflect the new state so subsequent agents stay informed.
+     - Run `bash scripts/verify-structure.sh` to confirm structural integrity.
 
 ## Tailwind CSS v4 Conventions
 - This project uses Tailwind CSS v4.
@@ -14,4 +33,3 @@
   - Write `rounded-0.75` instead of `rounded-[3px]`.
   - Write `z-100` instead of `z-[100]`.
   - Prefer native numerical utility classes (e.g. `z-100`, `w-4.5`, `max-w-35`, `min-h-225`) over bracketed arbitrary syntax like `z-[100]`, `w-[18px]`, `max-w-[140px]`, `min-h-[900px]`.
-
