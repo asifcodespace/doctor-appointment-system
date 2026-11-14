@@ -12,6 +12,7 @@
 1. **On Arrival**:
    - Read [PROJECT_STRUCTURE.md](file:///home/asif/Projects/Full_stack_projects/doctor-s_Brand_Frontend+Backend/PROJECT_STRUCTURE.md) to understand current directory layout, ports, and API routes without burning unnecessary tokens.
 2. **During Work**:
+   - **Modular Architecture & File Separation**: Keep code structure clean and easy to navigate for the future. Always separate components, types, mock data, and utilities into dedicated files and folders to one's utmost rather than creating monolithic files. Never dump massive data structures or multiple components in a single file.
    - Respect component and layer boundaries (Go: handler -> service -> repo -> domain; Frontend: Svelte 5 runes).
    - Strictly follow the Tailwind CSS v4 conventions below.
 3. **Before Departure (Task Completion)**:

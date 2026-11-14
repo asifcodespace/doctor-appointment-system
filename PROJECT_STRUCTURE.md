@@ -39,8 +39,28 @@
 └── Frontend_Svelte/
     ├── Admin/                        # Admin portal SvelteKit application
     │   ├── src/
-    │   │   ├── lib/api.ts            # Centralized API client & TypeScript interfaces
-    │   │   └── routes/+page.svelte   # Main appointments dashboard (real-time sync)
+    │   │   ├── lib/
+    │   │   │   ├── api.ts            # Centralized API client & TypeScript interfaces
+    │   │   │   ├── index.ts          # Barrel export for Admin components and types
+    │   │   │   ├── types/
+    │   │   │   │   ├── dashboard.ts  # Types for metrics, charts, donut, list, doctors
+    │   │   │   │   └── dashboard-mock.ts # Default seed data matching design reference
+    │   │   │   └── components/
+    │   │   │       ├── dashboard/    # Modular dashboard component suite
+    │   │   │       │   ├── Sidebar.svelte
+    │   │   │       │   ├── Header.svelte
+    │   │   │       │   ├── StatCards.svelte
+    │   │   │       │   ├── WeeklyChart.svelte
+    │   │   │       │   ├── StatusDonut.svelte
+    │   │   │       │   ├── UpcomingList.svelte
+    │   │   │       │   └── DoctorsOnDuty.svelte
+    │   │   │       └── appointments/ # Modular appointments component suite
+    │   │   │           ├── AppointmentsHeader.svelte
+    │   │   │           ├── AppointmentsStats.svelte
+    │   │   │           └── AppointmentsTable.svelte
+    │   │   └── routes/
+    │   │       ├── +page.svelte              # Main dashboard orchestrator (real-time sync)
+    │   │       └── appointments/+page.svelte # Dedicated appointments management page
     │   └── package.json              # Runs on port 5174 (`npm run dev`)
     └── Client/                       # Patient brand & booking SvelteKit website
         ├── src/                      # Client UI components and pages

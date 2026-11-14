@@ -7,5 +7,6 @@ See [AGENTS.md](file:///home/asif/Projects/Full_stack_projects/doctor-s_Brand_Fr
 - **Admin**: `Frontend_Svelte/Admin/` (SvelteKit on port `5174`)
 - **Client**: `Frontend_Svelte/Client/` (SvelteKit)
 - **Structure verification**: `bash scripts/verify-structure.sh`
+- **Modular Code Organization**: Break UI components, types, and logic into separate files and folders to one's utmost for long-term maintainability.
 - **Agent Handoff**: Update `PROJECT_STRUCTURE.md` before finishing work if changes to structure/routes/schemas occur.
 
