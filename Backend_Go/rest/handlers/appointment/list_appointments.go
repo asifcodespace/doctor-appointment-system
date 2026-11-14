@@ -1,6 +1,7 @@
 package appointment
 
 import (
+	"doctors-app/domain"
 	"doctors-app/util"
 	"net/http"
 	"strconv"
@@ -35,22 +36,36 @@ func (h *Handler) GetAppointments(w http.ResponseWriter, r *http.Request) {
 
 	search := strings.TrimSpace(searchprmAsStr)
 
-	items, err := h.svc.List(search, page, limit)
-	if err != nil {
-		util.SendError(w, http.StatusInternalServerError, "Internal Server Error")
-		return
-	}
+	itemsChan := make(chan []domain.Appointment)
+
+	go func() {
+		items, err := h.svc.List(search, page, limit)
+		if err != nil {
+			util.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
+		itemsChan <- items
+	}()
+
+	items := <-itemsChan
 
 	views := make([]appointmentView, 0, len(items))
 	for _, item := range items {
 		views = append(views, toAppointmentView(item))
 	}
 
-	totalCnt, err := h.svc.TotalCount()
-	if err != nil {
-		util.SendError(w, http.StatusInternalServerError, "Internal Server Error")
-		return
-	}
+	totalCntChan := make(chan int64)
+
+	go func() {
+		totalCnt, err := h.svc.TotalCount()
+		if err != nil {
+			util.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
+		totalCntChan <- totalCnt
+	}()
+
+	totalCnt := <-totalCntChan
 
 	responseList := listAppointmentsResponse{
 		Appointments: views,
