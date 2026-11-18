@@ -46,7 +46,8 @@
     │   │   │   │   ├── dashboard.ts  # Types for metrics, charts, donut, list, doctors
     │   │   │   │   ├── dashboard-mock.ts # Default seed data matching design reference
     │   │   │   │   ├── patient.ts    # Types for patients, statuses, stats, and profile records
-    │   │   │   │   └── patient-mock.ts   # Seed patient data matching design reference
+    │   │   │   │   ├── patient-mock.ts   # Seed patient data matching design reference
+    │   │   │   │   └── booking.ts    # BookingPayload, BookingDoctor, doctors/times/statuses mock data
     │   │   │   └── components/
     │   │   │       ├── dashboard/    # Modular dashboard component suite
     │   │   │       │   ├── Sidebar.svelte
@@ -57,9 +58,10 @@
     │   │   │       │   ├── UpcomingList.svelte
     │   │   │       │   └── DoctorsOnDuty.svelte
     │   │   │       ├── appointments/ # Modular appointments component suite
-    │   │   │       │   ├── AppointmentsHeader.svelte
+    │   │   │       │   ├── AppointmentsHeader.svelte  # Header with search, refresh, + New appointment
     │   │   │       │   ├── AppointmentsStats.svelte
-    │   │   │       │   └── AppointmentsTable.svelte
+    │   │   │       │   ├── AppointmentsTable.svelte
+    │   │   │       │   └── BookAppointmentModal.svelte # Full-screen booking modal (doctor/date/time/reason)
     │   │   │       └── patients/     # Modular patients component suite
     │   │   │           ├── index.ts
     │   │   │           ├── PatientsHeader.svelte

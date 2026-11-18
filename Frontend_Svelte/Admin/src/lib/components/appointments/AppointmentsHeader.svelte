@@ -3,12 +3,14 @@
 		searchQuery = $bindable(''),
 		isRefreshing = false,
 		onSearch,
-		onRefresh
+		onRefresh,
+		onNewAppointment
 	}: {
 		searchQuery: string;
 		isRefreshing?: boolean;
 		onSearch: (e: Event) => void;
 		onRefresh: () => void;
+		onNewAppointment?: () => void;
 	} = $props();
 </script>
 
@@ -52,7 +54,7 @@
 		<button
 			type="button"
 			onclick={onRefresh}
-			class="flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl border-0 bg-brand-teal px-5 text-sm font-bold text-brand-bg transition-all hover:brightness-110 active:scale-95"
+			class="flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl border border-brand-border bg-brand-card px-5 text-sm font-bold text-text-primary transition-all hover:border-brand-teal/50 hover:bg-btn-hover active:scale-95"
 		>
 			<svg
 				aria-hidden="true"
@@ -70,6 +72,28 @@
 				<path d="M21 3v5h-5" />
 			</svg>
 			Refresh
+		</button>
+
+		<!-- New Appointment Button -->
+		<button
+			type="button"
+			onclick={() => onNewAppointment?.()}
+			class="flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl border-0 bg-brand-teal px-5 text-sm font-bold text-brand-bg transition-all hover:brightness-110 active:scale-95"
+		>
+			<svg
+				aria-hidden="true"
+				width="16"
+				height="16"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2.8"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
+				<path d="M12 5v14M5 12h14" />
+			</svg>
+			New appointment
 		</button>
 	</div>
 </header>

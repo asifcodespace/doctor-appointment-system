@@ -4,6 +4,8 @@
 	import AppointmentsHeader from '#lib/components/appointments/AppointmentsHeader.svelte';
 	import AppointmentsStats from '#lib/components/appointments/AppointmentsStats.svelte';
 	import AppointmentsTable from '#lib/components/appointments/AppointmentsTable.svelte';
+	import BookAppointmentModal from '#lib/components/appointments/BookAppointmentModal.svelte';
+	import type { BookingPayload } from '#lib/types/booking';
 	import {
 		completeAppointmentStats,
 		fetchAppointments,
@@ -49,6 +51,21 @@
 	let activeFilter = $state<'All' | 'Pending' | 'Confirmed'>('All');
 	let isRefreshing = $state(false);
 	let apiError = $state<string | null>(null);
+	let isBookingOpen = $state(false);
+
+	function handleNewAppointment() {
+		isBookingOpen = true;
+	}
+
+	function handleBookingClose() {
+		isBookingOpen = false;
+	}
+
+	function handleBookingConfirm(payload: BookingPayload) {
+		// TODO: wire to real API when backend is ready
+		console.log('Booking confirmed:', payload);
+		isBookingOpen = false;
+	}
 
 	async function loadData(targetPage = currentPage) {
 		try {
@@ -152,6 +169,7 @@
 			{isRefreshing}
 			onSearch={handleSearchInput}
 			onRefresh={handleRefresh}
+			onNewAppointment={handleNewAppointment}
 		/>
 
 		<!-- Offline error banner -->
@@ -190,4 +208,12 @@
 		/>
 	</main>
 </div>
+
+<!-- Book Appointment Modal (no patient pre-selected from appointments page) -->
+<BookAppointmentModal
+	open={isBookingOpen}
+	patient={null}
+	onClose={handleBookingClose}
+	onConfirm={handleBookingConfirm}
+/>
 

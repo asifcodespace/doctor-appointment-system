@@ -9,6 +9,8 @@
 		PatientDetailsSidebar,
 		PatientRecordView
 	} from '#lib/components/patients';
+	import BookAppointmentModal from '#lib/components/appointments/BookAppointmentModal.svelte';
+	import type { BookingPayload } from '#lib/types/booking';
 	import {
 		INITIAL_PATIENTS,
 		INITIAL_PATIENT_STATS
@@ -27,6 +29,8 @@
 	let activeTab = $state<'All' | 'Follow-up' | 'New'>('All');
 	let selectedPatientId = $state<string>(INITIAL_PATIENTS[0]?.id ?? '');
 	let isRecordScreenOpen = $state(false);
+	let isBookingOpen = $state(false);
+	let bookingPatient = $state<PatientRecord | null>(null);
 
 	// Derived filtered patients list
 	let filteredPatients = $derived(
@@ -101,7 +105,20 @@
 	}
 
 	function handleBookAppointment(patient: PatientRecord) {
-		console.log('Opening appointment booking dialog for:', patient.id, patient.name);
+		bookingPatient = patient;
+		isBookingOpen = true;
+	}
+
+	function handleBookingClose() {
+		isBookingOpen = false;
+		bookingPatient = null;
+	}
+
+	function handleBookingConfirm(payload: BookingPayload) {
+		// TODO: wire to real API when backend is ready
+		console.log('Booking confirmed from patients page:', payload);
+		isBookingOpen = false;
+		bookingPatient = null;
 	}
 
 	// Periodic server status synchronization
@@ -177,3 +194,11 @@
 		</main>
 	{/if}
 </div>
+
+<!-- Book Appointment Modal (pre-fills the selected patient) -->
+<BookAppointmentModal
+	open={isBookingOpen}
+	patient={bookingPatient}
+	onClose={handleBookingClose}
+	onConfirm={handleBookingConfirm}
+/>
