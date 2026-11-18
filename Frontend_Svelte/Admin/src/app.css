@@ -27,7 +27,14 @@
 	--color-btn-border: #2a3350;
 	--color-btn-border-hover: #3a4565;
 	--color-btn-hover: #232c4e;
+	/* Typography scale matching design references */
+	--text-32px: 2rem;        /* 32px - Page title */
+	--text-13px: 0.8125rem;   /* 13px - Stat category labels, badges */
+	--text-14px: 0.875rem;    /* 14px - Subtitle, body */
+	--text-15px: 0.9375rem;   /* 15px - Profile vitals */
+	--text-28px: 1.75rem;     /* 28px - Profile avatar */
 	/* Custom radius scale — maps rounded-{n} to spacing-equivalent values */
+	--radius-3\.5: 0.875rem;   /* rounded-3.5 = 14px (buttons, search inputs) */
 	--radius-4\.5: 1.125rem;  /* rounded-4.5 = 18px (appointment banner card) */
 	--radius-5: 1.25rem;    /* rounded-5  = 20px  (stat cards) */
 	--radius-6: 1.5rem;     /* rounded-6  = 24px  (panels) */
