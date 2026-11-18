@@ -1,0 +1,156 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { Sidebar } from '#lib';
+	import { fetchServerStatus, type ServerStatus } from '#lib/api';
+	import {
+		PatientsHeader,
+		PatientsStats,
+		PatientsTable,
+		PatientDetailsSidebar
+	} from '#lib/components/patients';
+	import {
+		INITIAL_PATIENTS,
+		INITIAL_PATIENT_STATS
+	} from '#lib/types/patient-mock';
+	import type { PatientRecord, PatientStats } from '#lib/types/patient';
+
+	// ── State using Svelte 5 Runes ───────────────────────────────────────────
+	let allPatients = $state<PatientRecord[]>(INITIAL_PATIENTS);
+	let stats = $state<PatientStats>(INITIAL_PATIENT_STATS);
+	let serverStatus = $state<ServerStatus>({
+		connected: false,
+		lastSyncSeconds: 0
+	});
+
+	let searchQuery = $state('');
+	let activeTab = $state<'All' | 'Follow-up' | 'New'>('All');
+	let selectedPatientId = $state<string>(INITIAL_PATIENTS[0]?.id ?? '');
+
+	// Derived filtered patients list
+	let filteredPatients = $derived(
+		allPatients.filter((p) => {
+			// Tab filtering
+			if (activeTab === 'Follow-up' && p.status !== 'Follow-up') return false;
+			if (activeTab === 'New' && p.status !== 'New') return false;
+
+			// Search query filtering
+			if (searchQuery.trim()) {
+				const q = searchQuery.toLowerCase().trim();
+				return (
+					p.name.toLowerCase().includes(q) ||
+					p.id.toLowerCase().includes(q) ||
+					p.notes.toLowerCase().includes(q)
+				);
+			}
+
+			return true;
+		})
+	);
+
+	// Derived currently selected patient
+	let selectedPatient = $derived(
+		allPatients.find((p) => p.id === selectedPatientId) ?? allPatients[0]
+	);
+
+	function handleSelectPatient(patient: PatientRecord) {
+		selectedPatientId = patient.id;
+	}
+
+	function handleAddPatient() {
+		// Placeholder for Add Patient modal / drawer
+		const newId = `PT-${3100 + allPatients.length}`;
+		const newPatient: PatientRecord = {
+			id: newId,
+			name: 'New Registered Patient',
+			initials: 'NP',
+			avatarBg: '#34D399',
+			age: 30,
+			gender: 'Female',
+			bloodGroup: 'O+',
+			totalVisits: 1,
+			lastVisit: 'Today',
+			nextAppointmentText: 'Not booked',
+			status: 'New',
+			patientSince: new Date().getFullYear().toString(),
+			notes: 'Newly registered patient record.'
+		};
+		allPatients = [newPatient, ...allPatients];
+		selectedPatientId = newId;
+		stats = {
+			...stats,
+			totalPatients: stats.totalPatients + 1,
+			newThisMonth: stats.newThisMonth + 1
+		};
+	}
+
+	function handleOpenFullRecord(patient: PatientRecord) {
+		console.log('Opening full medical record for:', patient.id, patient.name);
+	}
+
+	function handleBookAppointment(patient: PatientRecord) {
+		console.log('Opening appointment booking dialog for:', patient.id, patient.name);
+	}
+
+	// Periodic server status synchronization
+	onMount(() => {
+		async function updateStatus() {
+			try {
+				const srv = await fetchServerStatus();
+				serverStatus = srv;
+			} catch {
+				// Backend offline fallback handled gracefully
+			}
+		}
+
+		updateStatus();
+		const interval = setInterval(updateStatus, 10000);
+		return () => clearInterval(interval);
+	});
+</script>
+
+<svelte:head>
+	<title>Patients - MediDesk</title>
+</svelte:head>
+
+<div
+	class="flex h-screen w-screen overflow-hidden bg-brand-bg font-sans text-text-primary box-border"
+>
+	<!-- Persistent Sidebar Navigation -->
+	<Sidebar {serverStatus} activePage="Patients" />
+
+	<!-- Main Patients View -->
+	<main
+		class="flex-1 min-w-0 p-8 sm:p-10 flex flex-col gap-6 overflow-y-auto box-border"
+	>
+		<!-- Header (Title, Subtitle, Search input, Add Patient button) -->
+		<PatientsHeader
+			bind:searchQuery
+			onAddPatient={handleAddPatient}
+		/>
+
+		<!-- Quick Metric Stats Cards -->
+		<PatientsStats {stats} />
+
+		<!-- Main 2-Column Split: Table (flex-1) + Selected Patient Details (330px) -->
+		<div
+			class="grid grid-cols-1 xl:grid-cols-[1fr_330px] gap-5 flex-1 min-h-0 items-start"
+		>
+			<!-- Patients Table Section with Filter Tabs -->
+			<PatientsTable
+				patients={filteredPatients}
+				{selectedPatientId}
+				bind:activeTab
+				onSelectPatient={handleSelectPatient}
+			/>
+
+			<!-- Patient Profile & Vitals Details Aside -->
+			{#if selectedPatient}
+				<PatientDetailsSidebar
+					patient={selectedPatient}
+					onOpenFullRecord={handleOpenFullRecord}
+					onBookAppointment={handleBookAppointment}
+				/>
+			{/if}
+		</div>
+	</main>
+</div>

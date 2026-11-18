@@ -18,6 +18,7 @@
 	--color-status-red: #fca5a5;
 	--color-status-purple: #a78bfa;
 	--color-bar-bg: #2a3560;
+	--color-status-inactive: #c3cbdd;
 	--color-track-bg: #1b2340;
 	--color-text-primary: #f1f5ff;
 	--color-text-secondary: #9aa6bf;
@@ -27,6 +28,7 @@
 	--color-btn-border-hover: #3a4565;
 	--color-btn-hover: #232c4e;
 	/* Custom radius scale — maps rounded-{n} to spacing-equivalent values */
+	--radius-4\.5: 1.125rem;  /* rounded-4.5 = 18px (appointment banner card) */
 	--radius-5: 1.25rem;    /* rounded-5  = 20px  (stat cards) */
 	--radius-6: 1.5rem;     /* rounded-6  = 24px  (panels) */
 	--radius-0\.75: 0.1875rem; /* rounded-0.75 = 3px (nav bullet dots) */

@@ -44,7 +44,9 @@
     │   │   │   ├── index.ts          # Barrel export for Admin components and types
     │   │   │   ├── types/
     │   │   │   │   ├── dashboard.ts  # Types for metrics, charts, donut, list, doctors
-    │   │   │   │   └── dashboard-mock.ts # Default seed data matching design reference
+    │   │   │   │   ├── dashboard-mock.ts # Default seed data matching design reference
+    │   │   │   │   ├── patient.ts    # Types for patients, statuses, stats, and profile records
+    │   │   │   │   └── patient-mock.ts   # Seed patient data matching design reference
     │   │   │   └── components/
     │   │   │       ├── dashboard/    # Modular dashboard component suite
     │   │   │       │   ├── Sidebar.svelte
@@ -54,13 +56,21 @@
     │   │   │       │   ├── StatusDonut.svelte
     │   │   │       │   ├── UpcomingList.svelte
     │   │   │       │   └── DoctorsOnDuty.svelte
-    │   │   │       └── appointments/ # Modular appointments component suite
-    │   │   │           ├── AppointmentsHeader.svelte
-    │   │   │           ├── AppointmentsStats.svelte
-    │   │   │           └── AppointmentsTable.svelte
+    │   │   │       ├── appointments/ # Modular appointments component suite
+    │   │   │       │   ├── AppointmentsHeader.svelte
+    │   │   │       │   ├── AppointmentsStats.svelte
+    │   │   │       │   └── AppointmentsTable.svelte
+    │   │   │       └── patients/     # Modular patients component suite
+    │   │   │           ├── index.ts
+    │   │   │           ├── PatientsHeader.svelte
+    │   │   │           ├── PatientsStats.svelte
+    │   │   │           ├── PatientsTable.svelte
+    │   │   │           ├── PatientStatusBadge.svelte
+    │   │   │           └── PatientDetailsSidebar.svelte
     │   │   └── routes/
     │   │       ├── +page.svelte              # Main dashboard orchestrator (real-time sync)
-    │   │       └── appointments/+page.svelte # Dedicated appointments management page
+    │   │       ├── appointments/+page.svelte # Dedicated appointments management page
+    │   │       └── patients/+page.svelte     # Dedicated patients management portal page
     │   └── package.json              # Runs on port 5174 (`npm run dev`)
     └── Client/                       # Patient brand & booking SvelteKit website
         ├── src/                      # Client UI components and pages

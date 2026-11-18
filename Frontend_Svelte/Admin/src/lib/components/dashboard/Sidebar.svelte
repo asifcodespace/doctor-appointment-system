@@ -12,7 +12,7 @@
 	const navItems = [
 		{ label: 'Dashboard', href: '/' },
 		{ label: 'Appointments', href: '/appointments' },
-		{ label: 'Patients', href: '#patients' },
+		{ label: 'Patients', href: '/patients' },
 		{ label: 'Doctors', href: '#doctors' },
 		{ label: 'Reports', href: '#reports' },
 		{ label: 'Settings', href: '#settings' }
@@ -62,7 +62,7 @@
 					: 'bg-transparent text-text-secondary font-medium hover:text-white'}"
 			>
 				<span
-					class="w-2 h-2 rounded-0.75 {isActive ? 'bg-brand-teal' : 'bg-[#3A4565]'}"
+					class="w-2 h-2 rounded-0.75 {isActive ? 'bg-brand-teal' : 'bg-btn-border-hover'}"
 				></span>
 				{item.label}
 			</a>
