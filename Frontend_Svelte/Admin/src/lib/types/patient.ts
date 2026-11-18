@@ -7,6 +7,19 @@ export interface PatientNextAppointment {
 	department: string;
 }
 
+export interface VisitHistoryItem {
+	date: string;
+	title: string;
+	doctor: string;
+	status: 'Completed' | 'Pending' | 'Cancelled';
+}
+
+export interface PrescriptionItem {
+	name: string;
+	dosage: string;
+	date: string;
+}
+
 export interface PatientRecord {
 	id: string; // e.g. "PT-3100"
 	name: string;
@@ -15,6 +28,9 @@ export interface PatientRecord {
 	age: number;
 	gender: 'Female' | 'Male' | 'Other';
 	bloodGroup: string;
+	phone?: string;
+	email?: string;
+	address?: string;
 	totalVisits: number;
 	lastVisit: string;
 	nextAppointmentText: string;
@@ -22,6 +38,10 @@ export interface PatientRecord {
 	patientSince: string;
 	nextAppointmentDetails?: PatientNextAppointment;
 	notes: string;
+	allergiesAndConditions?: string[];
+	doctorNotes?: string;
+	visitHistory?: VisitHistoryItem[];
+	prescriptions?: PrescriptionItem[];
 }
 
 export interface PatientStats {

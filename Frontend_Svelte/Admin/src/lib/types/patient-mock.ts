@@ -17,6 +17,9 @@ export const INITIAL_PATIENTS: PatientRecord[] = [
 		age: 34,
 		gender: 'Female',
 		bloodGroup: 'B+',
+		phone: '+880 1712-345678',
+		email: 'amina.rahman@example.com',
+		address: 'Mymensingh',
 		totalVisits: 12,
 		lastVisit: '02 Nov',
 		nextAppointmentText: '19 Nov · 14:00',
@@ -28,7 +31,47 @@ export const INITIAL_PATIENTS: PatientRecord[] = [
 			doctor: 'Dr. Nusrat Jahan',
 			department: 'General checkup'
 		},
-		notes: 'Seasonal allergies. Prefers morning slots. Follow-up blood pressure check due.'
+		allergiesAndConditions: ['Pollen allergy', 'Penicillin', 'Mild hypertension'],
+		doctorNotes: 'Seasonal allergies are well controlled. Blood pressure slightly high at last visit; recheck due. Prefers morning slots.',
+		notes: 'Seasonal allergies are well controlled. Blood pressure slightly high at last visit; recheck due. Prefers morning slots.',
+		visitHistory: [
+			{
+				date: '02 Nov 2026',
+				title: 'General checkup',
+				doctor: 'Dr. Nusrat Jahan',
+				status: 'Completed'
+			},
+			{
+				date: '14 Aug 2026',
+				title: 'Blood pressure review',
+				doctor: 'Dr. Karim Hasan',
+				status: 'Completed'
+			},
+			{
+				date: '03 May 2026',
+				title: 'Skin allergy consult',
+				doctor: 'Dr. Farhana Sultana',
+				status: 'Completed'
+			},
+			{
+				date: '19 Jan 2026',
+				title: 'Seasonal flu',
+				doctor: 'Dr. Nusrat Jahan',
+				status: 'Completed'
+			}
+		],
+		prescriptions: [
+			{
+				name: 'Cetirizine 10 mg',
+				dosage: 'Once daily, 14 days',
+				date: '02 Nov'
+			},
+			{
+				name: 'Amlodipine 5 mg',
+				dosage: 'Once daily, ongoing',
+				date: '14 Aug'
+			}
+		]
 	},
 	{
 		id: 'PT-3101',

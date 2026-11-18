@@ -6,13 +6,14 @@
 		PatientsHeader,
 		PatientsStats,
 		PatientsTable,
-		PatientDetailsSidebar
+		PatientDetailsSidebar,
+		PatientRecordView
 	} from '#lib/components/patients';
 	import {
 		INITIAL_PATIENTS,
 		INITIAL_PATIENT_STATS
 	} from '#lib/types/patient-mock';
-	import type { PatientRecord, PatientStats } from '#lib/types/patient';
+	import type { PatientRecord, PatientStats, PatientStatus } from '#lib/types/patient';
 
 	// ── State using Svelte 5 Runes ───────────────────────────────────────────
 	let allPatients = $state<PatientRecord[]>(INITIAL_PATIENTS);
@@ -25,6 +26,7 @@
 	let searchQuery = $state('');
 	let activeTab = $state<'All' | 'Follow-up' | 'New'>('All');
 	let selectedPatientId = $state<string>(INITIAL_PATIENTS[0]?.id ?? '');
+	let isRecordScreenOpen = $state(false);
 
 	// Derived filtered patients list
 	let filteredPatients = $derived(
@@ -84,7 +86,18 @@
 	}
 
 	function handleOpenFullRecord(patient: PatientRecord) {
-		console.log('Opening full medical record for:', patient.id, patient.name);
+		selectedPatientId = patient.id;
+		isRecordScreenOpen = true;
+	}
+
+	function handleBackToPatients() {
+		isRecordScreenOpen = false;
+	}
+
+	function handleUpdatePatientStatus(newStatus: PatientStatus) {
+		allPatients = allPatients.map((p) =>
+			p.id === selectedPatientId ? { ...p, status: newStatus } : p
+		);
 	}
 
 	function handleBookAppointment(patient: PatientRecord) {
@@ -118,39 +131,49 @@
 	<!-- Persistent Sidebar Navigation -->
 	<Sidebar {serverStatus} activePage="Patients" />
 
-	<!-- Main Patients View -->
-	<main
-		class="flex-1 min-w-0 p-8 sm:p-10 flex flex-col gap-6 overflow-y-auto box-border"
-	>
-		<!-- Header (Title, Subtitle, Search input, Add Patient button) -->
-		<PatientsHeader
-			bind:searchQuery
-			onAddPatient={handleAddPatient}
+	{#if isRecordScreenOpen && selectedPatient}
+		<!-- Patient Medical Record Screen (matches design reference) -->
+		<PatientRecordView
+			patient={selectedPatient}
+			onBack={handleBackToPatients}
+			onStatusChange={handleUpdatePatientStatus}
+			onBookAppointment={handleBookAppointment}
 		/>
-
-		<!-- Quick Metric Stats Cards -->
-		<PatientsStats {stats} />
-
-		<!-- Main 2-Column Split: Table (flex-1) + Selected Patient Details (330px) -->
-		<div
-			class="grid grid-cols-1 xl:grid-cols-[1fr_330px] gap-5 flex-1 min-h-0 items-start"
+	{:else}
+		<!-- Main Patients View -->
+		<main
+			class="flex-1 min-w-0 p-8 sm:p-10 flex flex-col gap-6 overflow-y-auto box-border"
 		>
-			<!-- Patients Table Section with Filter Tabs -->
-			<PatientsTable
-				patients={filteredPatients}
-				{selectedPatientId}
-				bind:activeTab
-				onSelectPatient={handleSelectPatient}
+			<!-- Header (Title, Subtitle, Search input, Add Patient button) -->
+			<PatientsHeader
+				bind:searchQuery
+				onAddPatient={handleAddPatient}
 			/>
 
-			<!-- Patient Profile & Vitals Details Aside -->
-			{#if selectedPatient}
-				<PatientDetailsSidebar
-					patient={selectedPatient}
-					onOpenFullRecord={handleOpenFullRecord}
-					onBookAppointment={handleBookAppointment}
+			<!-- Quick Metric Stats Cards -->
+			<PatientsStats {stats} />
+
+			<!-- Main 2-Column Split: Table (flex-1) + Selected Patient Details (330px) -->
+			<div
+				class="grid grid-cols-1 xl:grid-cols-[1fr_330px] gap-5 flex-1 min-h-0 items-start"
+			>
+				<!-- Patients Table Section with Filter Tabs -->
+				<PatientsTable
+					patients={filteredPatients}
+					{selectedPatientId}
+					bind:activeTab
+					onSelectPatient={handleSelectPatient}
 				/>
-			{/if}
-		</div>
-	</main>
+
+				<!-- Patient Profile & Vitals Details Aside -->
+				{#if selectedPatient}
+					<PatientDetailsSidebar
+						patient={selectedPatient}
+						onOpenFullRecord={handleOpenFullRecord}
+						onBookAppointment={handleBookAppointment}
+					/>
+				{/if}
+			</div>
+		</main>
+	{/if}
 </div>

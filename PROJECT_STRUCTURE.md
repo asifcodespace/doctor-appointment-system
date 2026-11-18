@@ -66,7 +66,8 @@
     │   │   │           ├── PatientsStats.svelte
     │   │   │           ├── PatientsTable.svelte
     │   │   │           ├── PatientStatusBadge.svelte
-    │   │   │           └── PatientDetailsSidebar.svelte
+    │   │   │           ├── PatientDetailsSidebar.svelte
+    │   │   │           └── PatientRecordView.svelte
     │   │   └── routes/
     │   │       ├── +page.svelte              # Main dashboard orchestrator (real-time sync)
     │   │       ├── appointments/+page.svelte # Dedicated appointments management page

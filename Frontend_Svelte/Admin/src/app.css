@@ -29,6 +29,7 @@
 	--color-btn-hover: #232c4e;
 	/* Typography scale matching design references */
 	--text-32px: 2rem;        /* 32px - Page title */
+	--text-26px: 1.625rem;    /* 26px - Patient record avatar */
 	--text-13px: 0.8125rem;   /* 13px - Stat category labels, badges */
 	--text-14px: 0.875rem;    /* 14px - Subtitle, body */
 	--text-15px: 0.9375rem;   /* 15px - Profile vitals */
