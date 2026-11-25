@@ -24,7 +24,7 @@ export interface UpcomingAppointmentItem {
 	time: string;
 	patientName: string;
 	doctorName: string;
-	status: 'Confirmed' | 'Pending' | 'Checked in' | 'Cancelled';
+	status: 'Confirmed' | 'Pending' | 'Checked in' | 'Cancelled' | 'Completed';
 	statusColor: string;
 }
 

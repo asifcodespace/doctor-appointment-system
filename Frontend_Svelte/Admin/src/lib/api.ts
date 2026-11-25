@@ -16,7 +16,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
 
-export type AppointmentStatus = 'Confirmed' | 'Pending' | 'Checked in' | 'Cancelled';
+export type AppointmentStatus = 'Confirmed' | 'Pending' | 'Checked in' | 'Cancelled' | 'Completed';
 
 export interface Patient {
 	name: string;

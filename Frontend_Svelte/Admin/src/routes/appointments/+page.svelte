@@ -7,6 +7,7 @@
 	import AppointmentDetailsDrawer from '#lib/components/appointments/AppointmentDetailsDrawer.svelte';
 	import BookAppointmentModal from '#lib/components/appointments/BookAppointmentModal.svelte';
 	import CancelAppointmentModal from '#lib/components/appointments/CancelAppointmentModal.svelte';
+	import RescheduleAppointmentModal from '#lib/components/appointments/RescheduleAppointmentModal.svelte';
 	import type { BookingPayload } from '#lib/types/booking';
 	import {
 		completeAppointmentStats,
@@ -58,6 +59,7 @@
 	let isBookingOpen = $state(false);
 	let selectedAppointment = $state<Appointment | null>(null);
 	let cancelTarget = $state<Appointment | null>(null);
+	let rescheduleTarget = $state<Appointment | null>(null);
 
 	function handleViewAppointment(apt: Appointment) {
 		selectedAppointment = apt;
@@ -76,9 +78,8 @@
 		}
 	}
 
-	function handleReschedule(_apt: Appointment) {
-		selectedAppointment = null;
-		isBookingOpen = true;
+	function handleReschedule(apt: Appointment) {
+		rescheduleTarget = apt;
 	}
 
 	function handleRequestCancel(apt: Appointment) {
@@ -94,6 +95,27 @@
 		await handleStatusChange(payload.id, 'Cancelled');
 		cancelTarget = null;
 		selectedAppointment = null;
+	}
+
+	function handleConfirmReschedule(payload: {
+		id: string;
+		newDate: string;
+		newTime: string;
+		reason: string;
+		notifyPatient: boolean;
+	}) {
+		// Update the dateTime display optimistically
+		const apt = appointments.find((a) => a.id === payload.id);
+		if (apt) {
+			const newDateTime = `${payload.newDate} · ${payload.newTime}`;
+			appointments = appointments.map((a) =>
+				a.id === payload.id ? { ...a, dateTime: newDateTime } : a
+			);
+			if (selectedAppointment?.id === payload.id) {
+				selectedAppointment = { ...selectedAppointment, dateTime: newDateTime };
+			}
+		}
+		rescheduleTarget = null;
 	}
 
 	function handleNewAppointment() {
@@ -267,6 +289,13 @@
 	appointment={cancelTarget}
 	onKeep={() => (cancelTarget = null)}
 	onConfirmCancel={handleConfirmCancel}
+/>
+
+<!-- Reschedule Modal -->
+<RescheduleAppointmentModal
+	appointment={rescheduleTarget}
+	onKeep={() => (rescheduleTarget = null)}
+	onConfirmReschedule={handleConfirmReschedule}
 />
 
 <!-- Book Appointment Modal (no patient pre-selected from appointments page) -->

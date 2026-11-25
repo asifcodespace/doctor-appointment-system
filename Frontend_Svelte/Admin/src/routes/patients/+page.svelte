@@ -10,6 +10,7 @@
 		PatientRecordView
 	} from '#lib/components/patients';
 	import BookAppointmentModal from '#lib/components/appointments/BookAppointmentModal.svelte';
+	import PatientFormModal from '#lib/components/patients/PatientFormModal.svelte';
 	import type { BookingPayload } from '#lib/types/booking';
 	import {
 		INITIAL_PATIENTS,
@@ -31,6 +32,8 @@
 	let isRecordScreenOpen = $state(false);
 	let isBookingOpen = $state(false);
 	let bookingPatient = $state<PatientRecord | null>(null);
+	let isPatientFormOpen = $state(false);
+	let editPatient = $state<PatientRecord | null>(null);
 
 	// Derived filtered patients list
 	let filteredPatients = $derived(
@@ -63,30 +66,52 @@
 	}
 
 	function handleAddPatient() {
-		// Placeholder for Add Patient modal / drawer
-		const newId = `PT-${3100 + allPatients.length}`;
-		const newPatient: PatientRecord = {
-			id: newId,
-			name: 'New Registered Patient',
-			initials: 'NP',
-			avatarBg: '#34D399',
-			age: 30,
-			gender: 'Female',
-			bloodGroup: 'O+',
-			totalVisits: 1,
-			lastVisit: 'Today',
-			nextAppointmentText: 'Not booked',
-			status: 'New',
-			patientSince: new Date().getFullYear().toString(),
-			notes: 'Newly registered patient record.'
-		};
-		allPatients = [newPatient, ...allPatients];
-		selectedPatientId = newId;
-		stats = {
-			...stats,
-			totalPatients: stats.totalPatients + 1,
-			newThisMonth: stats.newThisMonth + 1
-		};
+		editPatient = null;
+		isPatientFormOpen = true;
+	}
+
+	function handleEditPatient(patient: PatientRecord) {
+		editPatient = patient;
+		isPatientFormOpen = true;
+	}
+
+	function handlePatientFormSave(data: Partial<PatientRecord>) {
+		if (editPatient) {
+			allPatients = allPatients.map((p) =>
+				p.id === editPatient!.id ? { ...p, ...data } : p
+			);
+		} else {
+			const newId = `PT-${3100 + allPatients.length}`;
+			const avatarColors = ['#34D399', '#60A5FA', '#F472B6', '#A78BFA', '#FBBF24', '#FB923C'];
+			const newPatient: PatientRecord = {
+				id: newId,
+				name: data.name ?? 'New Patient',
+				initials: data.initials ?? 'NP',
+				avatarBg: avatarColors[allPatients.length % avatarColors.length],
+				age: data.age ?? 0,
+				gender: data.gender ?? 'Female',
+				bloodGroup: data.bloodGroup ?? 'Not known',
+				phone: data.phone ?? '',
+				email: data.email ?? '',
+				address: data.address ?? '',
+				totalVisits: 0,
+				lastVisit: 'Not visited',
+				nextAppointmentText: 'Not booked',
+				status: data.status ?? 'New',
+				patientSince: new Date().getFullYear().toString(),
+				notes: '',
+				allergiesAndConditions: data.allergiesAndConditions ?? []
+			};
+			allPatients = [newPatient, ...allPatients];
+			selectedPatientId = newId;
+			stats = {
+				...stats,
+				totalPatients: stats.totalPatients + 1,
+				newThisMonth: stats.newThisMonth + 1
+			};
+		}
+		isPatientFormOpen = false;
+		editPatient = null;
 	}
 
 	function handleOpenFullRecord(patient: PatientRecord) {
@@ -154,6 +179,7 @@
 			patient={selectedPatient}
 			onBack={handleBackToPatients}
 			onStatusChange={handleUpdatePatientStatus}
+			onEditDetails={handleEditPatient}
 			onBookAppointment={handleBookAppointment}
 		/>
 	{:else}
@@ -188,6 +214,7 @@
 						patient={selectedPatient}
 						onOpenFullRecord={handleOpenFullRecord}
 						onBookAppointment={handleBookAppointment}
+						onStatusChange={handleUpdatePatientStatus}
 					/>
 				{/if}
 			</div>
@@ -201,4 +228,12 @@
 	patient={bookingPatient}
 	onClose={handleBookingClose}
 	onConfirm={handleBookingConfirm}
+/>
+
+<!-- Add / Edit Patient Modal -->
+<PatientFormModal
+	open={isPatientFormOpen}
+	patient={editPatient}
+	onClose={() => { isPatientFormOpen = false; editPatient = null; }}
+	onSave={handlePatientFormSave}
 />
