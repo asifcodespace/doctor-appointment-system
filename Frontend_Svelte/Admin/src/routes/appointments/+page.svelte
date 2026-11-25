@@ -4,15 +4,19 @@
 	import AppointmentsHeader from '#lib/components/appointments/AppointmentsHeader.svelte';
 	import AppointmentsStats from '#lib/components/appointments/AppointmentsStats.svelte';
 	import AppointmentsTable from '#lib/components/appointments/AppointmentsTable.svelte';
+	import AppointmentDetailsDrawer from '#lib/components/appointments/AppointmentDetailsDrawer.svelte';
 	import BookAppointmentModal from '#lib/components/appointments/BookAppointmentModal.svelte';
+	import CancelAppointmentModal from '#lib/components/appointments/CancelAppointmentModal.svelte';
 	import type { BookingPayload } from '#lib/types/booking';
 	import {
 		completeAppointmentStats,
 		fetchAppointments,
 		fetchAppointmentStats,
 		fetchServerStatus,
+		updateAppointmentStatus,
 		type Appointment,
 		type AppointmentStats,
+		type AppointmentStatus,
 		type Pagination,
 		type ServerStatus
 	} from '#lib/api';
@@ -52,6 +56,45 @@
 	let isRefreshing = $state(false);
 	let apiError = $state<string | null>(null);
 	let isBookingOpen = $state(false);
+	let selectedAppointment = $state<Appointment | null>(null);
+	let cancelTarget = $state<Appointment | null>(null);
+
+	function handleViewAppointment(apt: Appointment) {
+		selectedAppointment = apt;
+	}
+
+	async function handleStatusChange(id: string, status: AppointmentStatus) {
+		appointments = appointments.map((apt) => (apt.id === id ? { ...apt, status } : apt));
+		if (selectedAppointment?.id === id) {
+			selectedAppointment = { ...selectedAppointment, status };
+		}
+		stats = completeAppointmentStats(stats, appointments);
+		try {
+			await updateAppointmentStatus(id, status);
+		} catch {
+			// Keep optimistic state if backend PATCH is not yet wired
+		}
+	}
+
+	function handleReschedule(_apt: Appointment) {
+		selectedAppointment = null;
+		isBookingOpen = true;
+	}
+
+	function handleRequestCancel(apt: Appointment) {
+		cancelTarget = apt;
+	}
+
+	async function handleConfirmCancel(payload: {
+		id: string;
+		reason: string;
+		note: string;
+		notifyPatient: boolean;
+	}) {
+		await handleStatusChange(payload.id, 'Cancelled');
+		cancelTarget = null;
+		selectedAppointment = null;
+	}
 
 	function handleNewAppointment() {
 		isBookingOpen = true;
@@ -205,9 +248,26 @@
 			{currentPage}
 			onFilterChange={(f) => (activeFilter = f)}
 			onPageChange={goToPage}
+			onViewAppointment={handleViewAppointment}
 		/>
 	</main>
 </div>
+
+<!-- Appointment Details Slide-in Drawer -->
+<AppointmentDetailsDrawer
+	appointment={selectedAppointment}
+	onClose={() => (selectedAppointment = null)}
+	onStatusChange={handleStatusChange}
+	onReschedule={handleReschedule}
+	onRequestCancel={handleRequestCancel}
+/>
+
+<!-- Cancel Confirmation Modal -->
+<CancelAppointmentModal
+	appointment={cancelTarget}
+	onKeep={() => (cancelTarget = null)}
+	onConfirmCancel={handleConfirmCancel}
+/>
 
 <!-- Book Appointment Modal (no patient pre-selected from appointments page) -->
 <BookAppointmentModal

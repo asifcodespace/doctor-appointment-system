@@ -7,7 +7,8 @@
 		activeFilter = 'All',
 		currentPage = 1,
 		onFilterChange,
-		onPageChange
+		onPageChange,
+		onViewAppointment
 	}: {
 		appointments: Appointment[];
 		pagination: Pagination;
@@ -15,6 +16,7 @@
 		currentPage: number;
 		onFilterChange: (filter: 'All' | 'Pending' | 'Confirmed') => void;
 		onPageChange: (page: number) => void;
+		onViewAppointment?: (appointment: Appointment) => void;
 	} = $props();
 
 	function getStatusBadge(status: Appointment['status']) {
@@ -114,7 +116,16 @@
 			{#each appointments as apt (apt.id)}
 				{@const badge = getStatusBadge(apt.status)}
 				<div
-					class="grid min-w-225 grid-cols-[2.2fr_1.8fr_1.4fr_1.5fr_1.3fr_80px] items-center gap-4 border-t border-brand-border-subtle px-6 py-3.5 text-sm text-text-muted transition-colors hover:bg-brand-active/30"
+					role="button"
+					tabindex="0"
+					onclick={() => onViewAppointment?.(apt)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							onViewAppointment?.(apt);
+						}
+					}}
+					class="grid min-w-225 cursor-pointer grid-cols-[2.2fr_1.8fr_1.4fr_1.5fr_1.3fr_80px] items-center gap-4 border-t border-brand-border-subtle px-6 py-3.5 text-sm text-text-muted transition-colors hover:bg-brand-active/30"
 				>
 					<!-- Patient -->
 					<div class="flex items-center gap-3">
@@ -158,6 +169,10 @@
 					<div>
 						<button
 							type="button"
+							onclick={(e) => {
+								e.stopPropagation();
+								onViewAppointment?.(apt);
+							}}
 							aria-label="View appointment {apt.patient.name}"
 							class="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-xl border border-btn-border bg-btn-dark px-4 text-sm font-semibold text-text-primary transition-all hover:border-btn-border-hover hover:bg-btn-hover"
 						>
