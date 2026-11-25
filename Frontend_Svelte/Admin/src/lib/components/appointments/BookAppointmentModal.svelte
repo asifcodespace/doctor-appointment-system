@@ -46,7 +46,26 @@
 	let selectedDayIndex = $state(2);
 	let selectedTime = $state('10:30');
 	let startAs = $state<BookingStartStatus>('Confirmed');
+	let isStartAsOpen = $state(false);
+	let openUpward = $state(false);
+	let startAsTrigger = $state<HTMLButtonElement | null>(null);
 	let reason = $state('');
+
+	function toggleStartAs() {
+		if (!isStartAsOpen && startAsTrigger) {
+			const rect = startAsTrigger.getBoundingClientRect();
+			const spaceBelow = window.innerHeight - rect.bottom;
+			const spaceAbove = rect.top;
+			openUpward = spaceBelow < 180 && spaceAbove > spaceBelow;
+		}
+		isStartAsOpen = !isStartAsOpen;
+	}
+
+	const START_STATUS_COLORS: Record<BookingStartStatus, string> = {
+		Confirmed: '#34D399',
+		Pending: '#FBBF24',
+		'Follow-up': '#7DD3FC'
+	};
 
 	// Reset state each time the modal opens
 	$effect(() => {
@@ -56,6 +75,7 @@
 			selectedDayIndex = 2;
 			selectedTime = '10:30';
 			startAs = 'Confirmed';
+			isStartAsOpen = false;
 			reason = '';
 		}
 	});
@@ -108,10 +128,10 @@
 				aria-label="Book appointment"
 				tabindex="-1"
 				onclick={(e) => e.stopPropagation()}
-				class="relative flex w-full max-w-5xl rounded-5 border border-brand-border bg-brand-bg shadow-2xl overflow-hidden"
+				class="relative flex w-full max-w-5xl rounded-6 border border-brand-border bg-brand-bg shadow-2xl overflow-hidden"
 			>
 				<!-- ══ LEFT: Booking Form ══════════════════════════════════════ -->
-				<div class="flex-1 min-w-0 overflow-y-auto p-8 flex flex-col gap-7">
+				<div class="flex-1 min-w-0 overflow-y-auto p-8 flex flex-col gap-6 bg-brand-card rounded-l-6">
 
 					<!-- Page heading -->
 					<div>
@@ -129,7 +149,7 @@
 							1. Patient
 						</h3>
 						<div
-							class="flex items-center justify-between gap-4 rounded-4 border border-brand-border bg-brand-card px-5 py-4"
+							class="flex items-center justify-between gap-4 rounded-4.5 border border-btn-border bg-track-bg px-4 py-3.5"
 						>
 							{#if patient}
 								<div class="flex items-center gap-3.5">
@@ -173,26 +193,26 @@
 						<h3 class="m-0 text-xs font-bold tracking-widest text-text-secondary uppercase">
 							2. Doctor
 						</h3>
-						<div class="grid grid-cols-3 gap-3">
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 							{#each BOOKING_DOCTORS as doc (doc.id)}
 								<button
 									type="button"
 									onclick={() => (selectedDoctor = doc)}
-									class="flex flex-col gap-3 rounded-4 border p-4 text-left cursor-pointer transition-all
+									class="flex items-center gap-3 rounded-4.5 border p-3.5 text-left cursor-pointer transition-all
 										{selectedDoctor.id === doc.id
-											? 'border-brand-teal bg-brand-teal/10'
-											: 'border-brand-border bg-brand-card hover:border-brand-teal/40'}"
+											? 'border-brand-teal bg-brand-active'
+											: 'border-btn-border bg-brand-card hover:border-brand-teal/40'}"
 								>
 									<span
-										class="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-brand-bg shrink-0"
+										class="flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold text-brand-bg shrink-0"
 										style="background-color: {doc.avatarBg};"
 									>
 										{doc.initials}
 									</span>
-									<div>
+									<div class="min-w-0">
 										<div class="text-sm font-bold text-white leading-snug">{doc.name}</div>
 										<div class="text-xs text-text-secondary mt-0.5">{doc.specialty}</div>
-										<div class="text-xs text-brand-teal mt-1.5">Next free: {doc.nextFree}</div>
+										<div class="text-xs text-brand-teal mt-1">Next free: {doc.nextFree}</div>
 									</div>
 								</button>
 							{/each}
@@ -209,10 +229,10 @@
 								<button
 									type="button"
 									onclick={() => (selectedDayIndex = i)}
-									class="flex flex-1 flex-col items-center rounded-3.5 border py-3 px-2 cursor-pointer font-semibold transition-all
+									class="flex flex-1 min-h-17.5 flex-col items-center justify-center rounded-2xl border py-3 px-2 cursor-pointer font-semibold transition-all
 										{selectedDayIndex === i
 											? 'border-brand-teal bg-brand-teal text-brand-bg'
-											: 'border-brand-border bg-brand-card text-text-primary hover:border-brand-teal/50'}"
+											: 'border-btn-border bg-brand-card text-text-primary hover:border-brand-teal/50'}"
 								>
 									<span class="text-xs font-semibold leading-tight">{day.short}</span>
 									<span class="text-2xl font-extrabold leading-tight mt-0.5">{day.num}</span>
@@ -231,10 +251,10 @@
 								<button
 									type="button"
 									onclick={() => (selectedTime = slot)}
-									class="rounded-3.5 border py-3 text-sm font-semibold cursor-pointer transition-all
+									class="min-h-11.5 rounded-xl border py-2.5 text-sm font-bold cursor-pointer transition-all
 										{selectedTime === slot
 											? 'border-brand-teal bg-brand-teal text-brand-bg'
-											: 'border-brand-border bg-brand-card text-text-primary hover:border-brand-teal/50'}"
+											: 'border-btn-border bg-brand-card text-text-primary hover:border-brand-teal/50'}"
 								>
 									{slot}
 								</button>
@@ -247,19 +267,19 @@
 						<h3 class="m-0 text-xs font-bold tracking-widest text-text-secondary uppercase">
 							5. Reason for visit
 						</h3>
-						<textarea
+						<input
+							type="text"
 							bind:value={reason}
-							rows="3"
 							placeholder="e.g. Blood pressure follow-up"
-							class="w-full resize-none rounded-4 border border-brand-border bg-brand-card px-5 py-4 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-brand-teal transition-colors"
-						></textarea>
+							class="w-full min-h-12.5 rounded-3.5 border border-btn-border bg-brand-card px-4 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-brand-teal transition-colors"
+						/>
 					</section>
 
 				</div>
 
 				<!-- ══ RIGHT: Booking Summary ════════════════════════════════════ -->
 				<aside
-					class="w-72 shrink-0 flex flex-col border-l border-brand-border bg-brand-sidebar p-7 gap-5"
+					class="w-72 shrink-0 flex flex-col border-l border-brand-border bg-brand-card rounded-r-6 p-7 gap-5"
 				>
 					<h3 class="m-0 text-xl font-bold text-white">Booking summary</h3>
 
@@ -294,33 +314,90 @@
 					<!-- Divider -->
 					<hr class="border-0 border-t border-brand-border m-0" />
 
-					<!-- Start as dropdown -->
+					<!-- Start as custom dropdown -->
 					<div class="flex flex-col gap-2">
-						<label class="text-sm text-text-secondary" for="book-start-as">Start as</label>
+						<span class="text-13px font-bold text-text-muted">Start as</span>
 						<div class="relative">
-							<select
-								id="book-start-as"
-								bind:value={startAs}
-								class="w-full appearance-none rounded-3.5 border border-brand-border bg-brand-card px-4 py-3 pr-9 text-sm font-semibold text-text-primary outline-none focus:border-brand-teal transition-colors cursor-pointer"
+							<button
+								bind:this={startAsTrigger}
+								type="button"
+								aria-haspopup="listbox"
+								aria-expanded={isStartAsOpen}
+								onclick={toggleStartAs}
+								class="w-full min-h-11.5 flex items-center justify-between rounded-3.5 border px-4 text-sm font-semibold text-text-primary outline-none transition-colors cursor-pointer bg-brand-card
+									{isStartAsOpen ? 'border-brand-teal' : 'border-btn-border hover:border-brand-teal/50'}"
 							>
-								{#each BOOKING_START_STATUSES as s (s)}
-									<option value={s} class="bg-brand-card text-text-primary">{s}</option>
-								{/each}
-							</select>
-							<svg
-								aria-hidden="true"
-								width="14"
-								height="14"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2.5"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-text-secondary"
-							>
-								<polyline points="6 9 12 15 18 9"></polyline>
-							</svg>
+								<span class="flex items-center gap-2.5">
+									<span
+										class="h-2 w-2 rounded-full shrink-0"
+										style="background-color: {START_STATUS_COLORS[startAs]};"
+									></span>
+									{startAs}
+								</span>
+								<svg
+									aria-hidden="true"
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="text-text-secondary transition-transform {isStartAsOpen ? 'rotate-180' : ''}"
+								>
+									<polyline points="6 9 12 15 18 9"></polyline>
+								</svg>
+							</button>
+
+							{#if isStartAsOpen}
+								<div
+									role="listbox"
+									aria-label="Start as status"
+									class="absolute left-0 right-0 z-20 rounded-3.5 border border-brand-border bg-brand-card p-1.5 shadow-xl flex flex-col gap-0.5
+										{openUpward ? 'bottom-full mb-1.5' : 'top-full mt-1.5'}"
+								>
+									{#each BOOKING_START_STATUSES as s (s)}
+										<button
+											type="button"
+											role="option"
+											aria-selected={startAs === s}
+											onclick={() => {
+												startAs = s;
+												isStartAsOpen = false;
+											}}
+											class="w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold cursor-pointer border-0 transition-colors text-left
+												{startAs === s
+													? 'bg-brand-active text-white'
+													: 'bg-transparent text-text-muted hover:bg-btn-hover hover:text-white'}"
+										>
+											<span class="flex items-center gap-2.5">
+												<span
+													class="h-2 w-2 rounded-full shrink-0"
+													style="background-color: {START_STATUS_COLORS[s]};"
+												></span>
+												{s}
+											</span>
+											{#if startAs === s}
+												<svg
+													aria-hidden="true"
+													width="14"
+													height="14"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2.5"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													class="text-brand-teal"
+												>
+													<polyline points="20 6 9 17 4 12"></polyline>
+												</svg>
+											{/if}
+										</button>
+									{/each}
+								</div>
+							{/if}
 						</div>
 					</div>
 
